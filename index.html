@@ -201,12 +201,47 @@
             },
              // Example of a new, more complex template
             {
-                id: 'checkerboard',
+                id: 'line-left',
                 draw: (ctx, x, y, size, color) => {
-                    ctx.fillStyle = color;
-                    const subSize = size / 2;
-                    ctx.fillRect(x, y, subSize, subSize);
-                    ctx.fillRect(x + subSize, y + subSize, subSize, subSize);
+                    ctx.strokeStyle = color;
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    ctx.moveTo(x , y);
+                    ctx.lineTo(x , y + size );
+                    ctx.stroke();
+                }
+            },
+            {
+                id: 'line-right',
+                draw: (ctx, x, y, size, color) => {
+                    ctx.strokeStyle = color;
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    ctx.moveTo(x + size , y);
+                    ctx.lineTo(x + size , y + size );
+                    ctx.stroke();
+                }
+            },
+            {
+                id: 'line-top',
+                draw: (ctx, x, y, size, color) => {
+                    ctx.strokeStyle = color;
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    ctx.moveTo(x , y);
+                    ctx.lineTo(x + size , y );
+                    ctx.stroke();
+                }
+            },
+            {
+                id: 'line-bottom',
+                draw: (ctx, x, y, size, color) => {
+                    ctx.strokeStyle = color;
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    ctx.moveTo(x , y + size);
+                    ctx.lineTo(x + size, y + size );
+                    ctx.stroke();
                 }
             },
             {

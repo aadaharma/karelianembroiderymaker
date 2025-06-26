@@ -407,39 +407,38 @@ function populateTemplateLibraryUI() {
 }
 
         // --- Event Listeners ---
-        
-        // No longer need individual listeners for each template button
+        document.addEventListener('DOMContentLoaded', () => {
+            // No longer need individual listeners for each template button
+            document.getElementById('color-picker').addEventListener('input', (event) => {
+                currentColor = event.target.value;
+            });
 
-        document.getElementById('color-picker').addEventListener('input', (event) => {
-            currentColor = event.target.value;
-        });
+            document.getElementById('button-clear').addEventListener('click', () => {
+                pattern = [];
+                drawGrid();
+            });
 
-        document.getElementById('button-clear').addEventListener('click', () => {
-            pattern = [];
+            document.getElementById('button-download').addEventListener('click', () => {
+                const dataURL = canvas.toDataURL('image/png');
+                const link = document.createElement('a');
+                link.download = 'karelian_embroidery_pattern.png';
+                link.href = dataURL;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            });
+
+            canvas.addEventListener('click', handleCanvasClick);
+            canvas.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                handleCanvasClick(e.touches[0]);
+            }, { passive: false });
+
+            // --- Initial Setup ---
+            populateTemplateLibraryUI(); // Create the buttons first
             drawGrid();
+            selectTemplate('square'); // Select the default template
         });
-
-        document.getElementById('button-download').addEventListener('click', () => {
-            const dataURL = canvas.toDataURL('image/png');
-            const link = document.createElement('a');
-            link.download = 'karelian_embroidery_pattern.png';
-            link.href = dataURL;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        });
-
-        canvas.addEventListener('click', handleCanvasClick);
-        canvas.addEventListener('touchstart', (e) => {
-            e.preventDefault();
-            handleCanvasClick(e.touches[0]);
-        }, { passive: false });
-
-        // --- Initial Setup ---
-        populateTemplateLibraryUI(); // Create the buttons first
-        drawGrid();
-        selectTemplate('square'); // Select the default template
-    };
     </script>
 </body>
 </html>

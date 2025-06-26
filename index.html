@@ -125,6 +125,7 @@
         // Get the canvas element and its 2D rendering context
         const canvas = document.getElementById('embroideryCanvas');
         const ctx = canvas.getContext('2d');
+        ctx.globalCompositeOperation = "hue";
 
         // Define constants for grid dimensions and cell size
         const CELL_SIZE = 30; // Size of each grid cell in pixels
@@ -341,9 +342,9 @@
                 } else {
                     // Note: We now store `templateId` instead of `type`
                     const newItem = { x: gridX, y: gridY, templateId: selectedTemplateId, color: currentColor };
-                    if (existingIndex !== -1) {
-                        pattern[existingIndex] = newItem;
-                    } else {
+                    //if (existingIndex !== -1) {
+                        //pattern[existingIndex] = newItem;
+                    //} else {
                         pattern.push(newItem);
                     }
                 }

@@ -89,27 +89,7 @@
         <!-- Controls Section: Template Selection, Color Picker, Action Buttons -->
         <div class="flex flex-col md:flex-row items-center justify-between gap-4 controls-group">
             <!-- Template Selection -->
-            <div class="flex flex-wrap gap-3 p-3 bg-gray-50 rounded-lg shadow-inner">
-                <!-- Square Template Button -->
-                <button id="template-square" class="grid-button p-3 rounded-lg border-2 border-gray-300 bg-white hover:bg-gray-100 flex items-center justify-center text-gray-700 text-xl font-semibold">
-                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M3 3a1 1 0 011-1h12a1 1 0 011 1v12a1 1 0 01-1 1H4a1 1 0 01-1-1V3z" clip-rule="evenodd"></path></svg>
-                </button>
-                <!-- Cross Template Button -->
-                <button id="template-cross" class="grid-button p-3 rounded-lg border-2 border-gray-300 bg-white hover:bg-gray-100 flex items-center justify-center text-gray-700 text-xl font-semibold">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                </button>
-                <!-- Diagonal Forward Template Button (/) -->
-                <button id="template-diag-forward" class="grid-button p-3 rounded-lg border-2 border-gray-300 bg-white hover:bg-gray-100 flex items-center justify-center text-gray-700 text-xl font-semibold">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 7L7 17"></path></svg>
-                </button>
-                <!-- Diagonal Backward Template Button (\) -->
-                <button id="template-diag-backward" class="grid-button p-3 rounded-lg border-2 border-gray-300 bg-white hover:bg-gray-100 flex items-center justify-center text-gray-700 text-xl font-semibold">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7l10 10"></path></svg>
-                </button>
-                <!-- Erase Template Button -->
-                <button id="template-erase" class="grid-button p-3 rounded-lg border-2 border-gray-300 bg-red-100 hover:bg-red-200 flex items-center justify-center text-red-700 text-xl font-semibold">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                </button>
+            <div id="template-library-container" class="flex flex-wrap gap-3 p-3 bg-gray-50 rounded-lg shadow-inner">
             </div>
 
             <!-- Color Picker -->
@@ -142,243 +122,261 @@
          * It ensures that all DOM elements are available before script execution.
          */
         window.onload = function() {
-            // Get the canvas element and its 2D rendering context
-            const canvas = document.getElementById('embroideryCanvas');
-            const ctx = canvas.getContext('2d');
+        // Get the canvas element and its 2D rendering context
+        const canvas = document.getElementById('embroideryCanvas');
+        const ctx = canvas.getContext('2d');
 
-            // Define constants for grid dimensions and cell size
-            const CELL_SIZE = 30; // Size of each grid cell in pixels
-            const GRID_WIDTH = 25; // Number of cells horizontally
-            const GRID_HEIGHT = 20; // Number of cells vertically
+        // Define constants for grid dimensions and cell size
+        const CELL_SIZE = 30; // Size of each grid cell in pixels
+        const GRID_WIDTH = 25; // Number of cells horizontally
+        const GRID_HEIGHT = 20; // Number of cells vertically
 
-            // Set canvas dimensions based on cell size and grid dimensions
-            canvas.width = GRID_WIDTH * CELL_SIZE;
-            canvas.height = GRID_HEIGHT * CELL_SIZE;
-
-            // State variables for the designer
-            let selectedTemplate = 'square'; // Default template selected
-            let currentColor = '#3b82f6'; // Default drawing color (a shade of blue)
-
-            // Array to store the pattern data. Each item is an object: { x, y, type, color }
-            // This allows us to redraw the entire pattern when needed (e.g., after clearing or resizing).
-            let pattern = [];
-
-            /**
-             * Draws the grid lines on the canvas and then redraws all existing pattern elements.
-             * This function is called whenever the canvas needs to be refreshed.
-             */
-            function drawGrid() {
-                ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear the entire canvas
-                ctx.strokeStyle = '#e5e7eb'; // Set grid line color to light gray
-                ctx.lineWidth = 1; // Set grid line thickness
-
-                // Draw vertical grid lines
-                for (let i = 0; i <= GRID_WIDTH; i++) {
+        // Set canvas dimensions
+        canvas.width = GRID_WIDTH * CELL_SIZE;
+        canvas.height = GRID_HEIGHT * CELL_SIZE;
+        
+        // --- NEW: The Template Library ---
+        // This array is the single source of truth for all available templates.
+        // To add a new template, you just add a new object to this array.
+        const templateLibrary = [
+            {
+                id: 'square',
+                icon: `<svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M3 3a1 1 0 011-1h12a1 1 0 011 1v12a1 1 0 01-1 1H4a1 1 0 01-1-1V3z" clip-rule="evenodd"></path></svg>`,
+                draw: (ctx, x, y, size, color) => {
+                    ctx.fillStyle = color;
+                    ctx.fillRect(x + 1, y + 1, size - 2, size - 2);
+                }
+            },
+            {
+                id: 'cross',
+                icon: `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>`,
+                draw: (ctx, x, y, size, color) => {
+                    ctx.strokeStyle = color;
+                    ctx.lineWidth = 2;
                     ctx.beginPath();
-                    ctx.moveTo(i * CELL_SIZE, 0);
-                    ctx.lineTo(i * CELL_SIZE, canvas.height);
+                    ctx.moveTo(x + 5, y + 5);
+                    ctx.lineTo(x + size - 5, y + size - 5);
+                    ctx.stroke();
+                    ctx.beginPath();
+                    ctx.moveTo(x + size - 5, y + 5);
+                    ctx.lineTo(x + 5, y + size - 5);
                     ctx.stroke();
                 }
-
-                // Draw horizontal grid lines
-                for (let i = 0; i <= GRID_HEIGHT; i++) {
+            },
+            {
+                id: 'diag-forward',
+                icon: `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 7L7 17"></path></svg>`,
+                draw: (ctx, x, y, size, color) => {
+                    ctx.strokeStyle = color;
+                    ctx.lineWidth = 2;
                     ctx.beginPath();
-                    ctx.moveTo(0, i * CELL_SIZE);
-                    ctx.lineTo(canvas.width, i * CELL_SIZE);
+                    ctx.moveTo(x + 5, y + size - 5);
+                    ctx.lineTo(x + size - 5, y + 5);
                     ctx.stroke();
                 }
-
-                // After drawing the grid, redraw all saved pattern elements
-                redrawPattern();
-            }
-
-            /**
-             * Iterates through the `pattern` array and redraws each stored element on the canvas.
-             * This is crucial for maintaining the pattern's state visually.
-             */
-            function redrawPattern() {
-                pattern.forEach(item => {
-                    // Draw each template at its stored position, with its type and color
-                    drawTemplate(item.x, item.y, item.type, item.color);
-                });
-            }
-
-            /**
-             * Draws a specific embroidery template type within a given grid cell.
-             * The drawing is adjusted to ensure it fits within the cell boundaries and doesn't
-             * overlap too much with grid lines.
-             * @param {number} gridX - The x-coordinate of the grid cell (0-indexed).
-             * @param {number} gridY - The y-coordinate of the grid cell (0-indexed).
-             * @param {string} type - The type of template to draw ('square', 'cross', 'diag-forward', 'diag-backward', 'erase').
-             * @param {string} color - The color to use for drawing the template.
-             */
-            function drawTemplate(gridX, gridY, type, color) {
-                // Calculate pixel coordinates from grid coordinates
-                const pixelX = gridX * CELL_SIZE;
-                const pixelY = gridY * CELL_SIZE;
-
-                // Set fill and stroke styles based on the provided color
-                ctx.fillStyle = color;
-                ctx.strokeStyle = color;
-                ctx.lineWidth = 2; // Line width for cross and diagonal stitches
-
-                // Draw different template types using canvas 2D API
-                switch (type) {
-                    case 'square':
-                        // Draw a filled square, slightly smaller than the cell to allow grid lines to show
-                        ctx.fillRect(pixelX + 1, pixelY + 1, CELL_SIZE - 2, CELL_SIZE - 2);
-                        break;
-                    case 'cross':
-                        // Draw two intersecting lines for a cross stitch
-                        ctx.beginPath();
-                        ctx.moveTo(pixelX + 5, pixelY + 5);
-                        ctx.lineTo(pixelX + CELL_SIZE - 5, pixelY + CELL_SIZE - 5);
-                        ctx.stroke();
-                        ctx.beginPath();
-                        ctx.moveTo(pixelX + CELL_SIZE - 5, pixelY + 5);
-                        ctx.lineTo(pixelX + 5, pixelY + CELL_SIZE - 5);
-                        ctx.stroke();
-                        break;
-                    case 'diag-forward': // Represents a forward slash (/)
-                        ctx.beginPath();
-                        ctx.moveTo(pixelX + 5, pixelY + CELL_SIZE - 5);
-                        ctx.lineTo(pixelX + CELL_SIZE - 5, pixelY + 5);
-                        ctx.stroke();
-                        break;
-                    case 'diag-backward': // Represents a backward slash (\)
-                        ctx.beginPath();
-                        ctx.moveTo(pixelX + 5, pixelY + 5);
-                        ctx.lineTo(pixelX + CELL_SIZE - 5, pixelY + CELL_SIZE - 5);
-                        ctx.stroke();
-                        break;
-                    case 'erase':
-                        // Clear the specific cell to remove its content
-                        ctx.clearRect(pixelX + 1, pixelY + 1, CELL_SIZE - 2, CELL_SIZE - 2);
-                        // Redraw the grid lines over the cleared area to restore visibility
-                        ctx.strokeStyle = '#e5e7eb';
-                        ctx.lineWidth = 1;
-                        ctx.strokeRect(pixelX, pixelY, CELL_SIZE, CELL_SIZE);
-                        break;
+            },
+            {
+                id: 'diag-backward',
+                icon: `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7l10 10"></path></svg>`,
+                draw: (ctx, x, y, size, color) => {
+                    ctx.strokeStyle = color;
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    ctx.moveTo(x + 5, y + 5);
+                    ctx.lineTo(x + size - 5, y + size - 5);
+                    ctx.stroke();
+                }
+            },
+             // Example of a new, more complex template
+            {
+                id: 'checkerboard',
+                icon: `<svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M10 3a1 1 0 011 1v4h4a1 1 0 110 2h-4v4a1 1 0 11-2 0v-4H5a1 1 0 110-2h4V4a1 1 0 011-1z" clip-rule="evenodd" fill-rule="evenodd"></path></svg>`,
+                draw: (ctx, x, y, size, color) => {
+                    ctx.fillStyle = color;
+                    const subSize = size / 2;
+                    ctx.fillRect(x, y, subSize, subSize);
+                    ctx.fillRect(x + subSize, y + subSize, subSize, subSize);
+                }
+            },
+            {
+                id: 'erase',
+                icon: `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>`,
+                isEraser: true, // Special property for the eraser tool
+                draw: (ctx, x, y, size) => {
+                    ctx.clearRect(x, y, size, size);
                 }
             }
+        ];
 
-            /**
-             * Handles click and touch events on the canvas.
-             * Determines which grid cell was clicked/touched and applies the selected template.
-             * @param {MouseEvent|TouchEvent} event - The event object (either mouse or touch).
-             */
-            function handleCanvasClick(event) {
-                // Get the bounding rectangle of the canvas to calculate accurate click position
-                const rect = canvas.getBoundingClientRect();
-                // Calculate scaling factors if the canvas is displayed at a different size than its internal resolution
-                const scaleX = canvas.width / rect.width;
-                const scaleY = canvas.height / rect.height;
+        // State variables for the designer
+        let selectedTemplateId = 'square'; // Default template selected
+        let currentColor = '#3b82f6'; // Default drawing color
+        let pattern = []; // Stores the pattern data: { x, y, templateId, color }
 
-                // Determine mouse/touch coordinates relative to the canvas
-                const clientX = event.clientX || event.touches[0].clientX;
-                const clientY = event.clientY || event.touches[0].clientY;
+        /**
+         * MODIFIED: Draws the grid and then redraws all existing pattern elements.
+         */
+        function drawGrid() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.strokeStyle = '#e5e7eb';
+            ctx.lineWidth = 1;
 
-                const mouseX = (clientX - rect.left) * scaleX;
-                const mouseY = (clientY - rect.top) * scaleY;
+            for (let i = 0; i <= GRID_WIDTH; i++) {
+                ctx.beginPath();
+                ctx.moveTo(i * CELL_SIZE, 0);
+                ctx.lineTo(i * CELL_SIZE, canvas.height);
+                ctx.stroke();
+            }
 
-                // Convert pixel coordinates to grid cell coordinates
-                const gridX = Math.floor(mouseX / CELL_SIZE);
-                const gridY = Math.floor(mouseY / CELL_SIZE);
+            for (let i = 0; i <= GRID_HEIGHT; i++) {
+                ctx.beginPath();
+                ctx.moveTo(0, i * CELL_SIZE);
+                ctx.lineTo(canvas.width, i * CELL_SIZE);
+                ctx.stroke();
+            }
+            redrawPattern();
+        }
 
-                // Ensure the click is within the valid grid boundaries
-                if (gridX >= 0 && gridX < GRID_WIDTH && gridY >= 0 && gridY < GRID_HEIGHT) {
-                    // Find if a pattern element already exists at these grid coordinates
-                    const existingIndex = pattern.findIndex(item => item.x === gridX && item.y === gridY);
+        /**
+         * MODIFIED: Iterates through the `pattern` array and redraws each element
+         * by finding its template in the library and calling its draw function.
+         */
+        function redrawPattern() {
+            pattern.forEach(item => {
+                drawTemplate(item.x, item.y, item.templateId, item.color);
+            });
+        }
+        
+        /**
+         * REFACTORED: Finds the correct template from the library and executes its draw method.
+         * This replaces the old switch statement.
+         */
+        function drawTemplate(gridX, gridY, templateId, color) {
+            const template = templateLibrary.find(t => t.id === templateId);
+            if (!template) return; // Exit if template not found
 
-                    if (selectedTemplate === 'erase') {
-                        // If erase mode, remove the element if it exists
-                        if (existingIndex !== -1) {
-                            pattern.splice(existingIndex, 1); // Remove the item from the array
-                        }
-                    } else {
-                        // Create a new pattern item object
-                        const newItem = { x: gridX, y: gridY, type: selectedTemplate, color: currentColor };
-                        if (existingIndex !== -1) {
-                            pattern[existingIndex] = newItem; // Update existing item at this position
-                        } else {
-                            pattern.push(newItem); // Add new item to the pattern array
-                        }
+            const pixelX = gridX * CELL_SIZE;
+            const pixelY = gridY * CELL_SIZE;
+
+            // The template's own draw function is called
+            template.draw(ctx, pixelX, pixelY, CELL_SIZE, color);
+
+            // If we erased, we need to redraw the single grid cell border
+            if (template.isEraser) {
+                ctx.strokeStyle = '#e5e7eb';
+                ctx.lineWidth = 1;
+                ctx.strokeRect(pixelX, pixelY, CELL_SIZE, CELL_SIZE);
+            }
+        }
+
+        /**
+         * MODIFIED: handles canvas clicks, now storing the templateId instead of a 'type'.
+         */
+        function handleCanvasClick(event) {
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+
+            const clientX = event.clientX || (event.touches && event.touches[0].clientX);
+            const clientY = event.clientY || (event.touches && event.touches[0].clientY);
+
+            const mouseX = (clientX - rect.left) * scaleX;
+            const mouseY = (clientY - rect.top) * scaleY;
+
+            const gridX = Math.floor(mouseX / CELL_SIZE);
+            const gridY = Math.floor(mouseY / CELL_SIZE);
+
+            if (gridX >= 0 && gridX < GRID_WIDTH && gridY >= 0 && gridY < GRID_HEIGHT) {
+                const existingIndex = pattern.findIndex(item => item.x === gridX && item.y === gridY);
+
+                if (selectedTemplateId === 'erase') {
+                    if (existingIndex !== -1) {
+                        pattern.splice(existingIndex, 1);
                     }
-                    // Redraw the entire grid and pattern to reflect the changes
-                    drawGrid();
+                } else {
+                    // Note: We now store `templateId` instead of `type`
+                    const newItem = { x: gridX, y: gridY, templateId: selectedTemplateId, color: currentColor };
+                    if (existingIndex !== -1) {
+                        pattern[existingIndex] = newItem;
+                    } else {
+                        pattern.push(newItem);
+                    }
                 }
+                drawGrid();
             }
+        }
 
-            /**
-             * Sets the currently active template for drawing and updates the visual "selected" state
-             * of the template buttons.
-             * @param {string} templateId - The ID of the button representing the template (e.g., 'template-square').
-             */
-            function selectTemplate(templateId) {
-                // Remove 'selected' class from all template buttons
-                const buttons = document.querySelectorAll('.grid-button');
-                buttons.forEach(button => button.classList.remove('selected'));
-
-                // Add 'selected' class to the clicked button
-                const clickedButton = document.getElementById(templateId);
-                if (clickedButton) {
-                    clickedButton.classList.add('selected');
+        /**
+         * MODIFIED: A single function to handle selecting any template.
+         */
+        function selectTemplate(templateId) {
+            selectedTemplateId = templateId;
+            const buttons = document.querySelectorAll('.grid-button');
+            buttons.forEach(button => {
+                if (button.dataset.templateId === templateId) {
+                    button.classList.add('selected');
+                } else {
+                    button.classList.remove('selected');
+                }
+            });
+        }
+        
+        /**
+         * NEW: This function builds the template buttons from the library data.
+         */
+        function populateTemplateLibraryUI() {
+            const container = document.getElementById('template-library-container');
+            templateLibrary.forEach(template => {
+                const button = document.createElement('button');
+                button.id = `template-${template.id}`;
+                button.dataset.templateId = template.id; // Use data-attribute for clean selection
+                button.className = 'grid-button p-3 rounded-lg border-2 border-gray-300 bg-white hover:bg-gray-100 flex items-center justify-center text-gray-700 text-xl font-semibold';
+                
+                // Special styling for the eraser button
+                if (template.isEraser) {
+                    button.classList.add('bg-red-100', 'hover:bg-red-200', 'text-red-700');
                 }
 
-                // Update the global selectedTemplate variable by extracting the type from the button ID
-                selectedTemplate = templateId.replace('template-', '');
-            }
-
-            // --- Event Listeners ---
-
-            // Event listeners for template selection buttons
-            document.getElementById('template-square').addEventListener('click', () => selectTemplate('template-square'));
-            document.getElementById('template-cross').addEventListener('click', () => selectTemplate('template-cross'));
-            document.getElementById('template-diag-forward').addEventListener('click', () => selectTemplate('template-diag-forward'));
-            document.getElementById('template-diag-backward').addEventListener('click', () => selectTemplate('template-diag-backward'));
-            document.getElementById('template-erase').addEventListener('click', () => selectTemplate('template-erase'));
-
-            // Event listener for the color picker input
-            document.getElementById('color-picker').addEventListener('input', (event) => {
-                currentColor = event.target.value; // Update current drawing color
+                button.innerHTML = template.icon;
+                button.addEventListener('click', () => selectTemplate(template.id));
+                container.appendChild(button);
             });
+        }
 
-            // Event listener for the "Clear All" button
-            document.getElementById('button-clear').addEventListener('click', () => {
-                pattern = []; // Clear all pattern data
-                drawGrid(); // Redraw the empty grid to reset the canvas
-            });
+        // --- Event Listeners ---
+        
+        // No longer need individual listeners for each template button
 
-            // Event listener for the "Download Pattern" button
-            document.getElementById('button-download').addEventListener('click', () => {
-                // Convert the canvas content to a PNG image data URL
-                const dataURL = canvas.toDataURL('image/png');
-                // Create a temporary anchor element to trigger download
-                const link = document.createElement('a');
-                link.download = 'karelian_embroidery_pattern.png'; // Set the download file name
-                link.href = dataURL; // Set the data URL as the link's href
-                document.body.appendChild(link); // Append link to body
-                link.click(); // Programmatically click the link to start download
-                document.body.removeChild(link); // Remove the temporary link
-            });
+        document.getElementById('color-picker').addEventListener('input', (event) => {
+            currentColor = event.target.value;
+        });
 
-            // --- Initial Setup and Event Bindings ---
-
-            // Draw the grid when the page loads
+        document.getElementById('button-clear').addEventListener('click', () => {
+            pattern = [];
             drawGrid();
-            // Select the square template as default when the page loads
-            selectTemplate('template-square');
+        });
 
-            // Add event listener for mouse clicks on the canvas
-            canvas.addEventListener('click', handleCanvasClick);
+        document.getElementById('button-download').addEventListener('click', () => {
+            const dataURL = canvas.toDataURL('image/png');
+            const link = document.createElement('a');
+            link.download = 'karelian_embroidery_pattern.png';
+            link.href = dataURL;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        });
 
-            // Add touch event listeners for mobile devices.
-            // touchstart simulates a click for touch input.
-            canvas.addEventListener('touchstart', (e) => {
-                e.preventDefault(); // Prevent default touch behaviors like scrolling/zooming
-                handleCanvasClick(e.touches[0]); // Pass the first touch point to the click handler
-            }, { passive: false }); // Use passive: false to allow preventDefault to work
-        };
+        canvas.addEventListener('click', handleCanvasClick);
+        canvas.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            handleCanvasClick(e.touches[0]);
+        }, { passive: false });
+
+        // --- Initial Setup ---
+        populateTemplateLibraryUI(); // Create the buttons first
+        drawGrid();
+        selectTemplate('square'); // Select the default template
+    };
     </script>
 </body>
 </html>

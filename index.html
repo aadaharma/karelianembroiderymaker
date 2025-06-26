@@ -342,11 +342,11 @@
                 } else {
                     // Note: We now store `templateId` instead of `type`
                     const newItem = { x: gridX, y: gridY, templateId: selectedTemplateId, color: currentColor };
-                    //if (existingIndex !== -1) {
-                        //pattern[existingIndex] = newItem;
-                    //} else {
-                    pattern.push(newItem);
-                }
+                    if (existingIndex !== -1) {
+                        pattern[existingIndex] = newItem;
+                    } else {
+                        pattern.push(newItem);
+                    }
                 }
                 drawGrid();
             }

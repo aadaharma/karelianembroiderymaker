@@ -122,6 +122,8 @@
          * It ensures that all DOM elements are available before script execution.
          */
         window.onload = function() {
+        
+
         // Get the canvas element and its 2D rendering context
         const canvas = document.getElementById('embroideryCanvas');
         const ctx = canvas.getContext('2d');
@@ -342,11 +344,7 @@
                 } else {
                     // Note: We now store `templateId` instead of `type`
                     const newItem = { x: gridX, y: gridY, templateId: selectedTemplateId, color: currentColor };
-                    if (existingIndex !== -1) {
-                        pattern[existingIndex] = newItem;
-                    } else {
-                        pattern.push(newItem);
-                    }
+                    pattern.push(newItem);
                 }
                 drawGrid();
             }
@@ -407,7 +405,6 @@ function populateTemplateLibraryUI() {
 }
 
         // --- Event Listeners ---
-        document.addEventListener('DOMContentLoaded', () => {
             // No longer need individual listeners for each template button
             document.getElementById('color-picker').addEventListener('input', (event) => {
                 currentColor = event.target.value;
@@ -438,7 +435,7 @@ function populateTemplateLibraryUI() {
             populateTemplateLibraryUI(); // Create the buttons first
             drawGrid();
             selectTemplate('square'); // Select the default template
-        });
+        };
     </script>
 </body>
 </html>

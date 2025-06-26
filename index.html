@@ -220,7 +220,7 @@
 
         // State variables for the designer
         let selectedTemplateId = 'square'; // Default template selected
-        let currentColor = '#3b82f6'; // Default drawing color
+        let currentColor = '#BD0603'; // Default drawing color
         let pattern = []; // Stores the pattern data: { x, y, templateId, color }
 
         /**
@@ -228,7 +228,7 @@
          */
         function drawGrid() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.strokeStyle = '#e5e7eb';
+            ctx.strokeStyle = currentColor;
             ctx.lineWidth = 1;
 
             for (let i = 0; i <= GRID_WIDTH; i++) {
@@ -273,7 +273,7 @@
 
             // If we erased, we need to redraw the single grid cell border
             if (template.isEraser) {
-                ctx.strokeStyle = '#e5e7eb';
+                ctx.strokeStyle = currentColor;
                 ctx.lineWidth = 1;
                 ctx.strokeRect(pixelX, pixelY, CELL_SIZE, CELL_SIZE);
             }

@@ -141,7 +141,6 @@
         const templateLibrary = [
             {
                 id: 'square',
-                icon: `<svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M3 3a1 1 0 011-1h12a1 1 0 011 1v12a1 1 0 01-1 1H4a1 1 0 01-1-1V3z" clip-rule="evenodd"></path></svg>`,
                 draw: (ctx, x, y, size, color) => {
                     ctx.fillStyle = color;
                     ctx.fillRect(x + 1, y + 1, size - 2, size - 2);
@@ -149,7 +148,6 @@
             },
             {
                 id: 'cross',
-                icon: `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>`,
                 draw: (ctx, x, y, size, color) => {
                     ctx.strokeStyle = color;
                     ctx.lineWidth = 2;
@@ -165,7 +163,6 @@
             },
             {
                 id: 'diag-forward',
-                icon: `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 7L7 17"></path></svg>`,
                 draw: (ctx, x, y, size, color) => {
                     ctx.strokeStyle = color;
                     ctx.lineWidth = 2;
@@ -177,7 +174,6 @@
             },
             {
                 id: 'diag-backward',
-                icon: `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7l10 10"></path></svg>`,
                 draw: (ctx, x, y, size, color) => {
                     ctx.strokeStyle = color;
                     ctx.lineWidth = 2;
@@ -190,7 +186,6 @@
              // Example of a new, more complex template
             {
                 id: 'checkerboard',
-                icon: `<svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M10 3a1 1 0 011 1v4h4a1 1 0 110 2h-4v4a1 1 0 11-2 0v-4H5a1 1 0 110-2h4V4a1 1 0 011-1z" clip-rule="evenodd" fill-rule="evenodd"></path></svg>`,
                 draw: (ctx, x, y, size, color) => {
                     ctx.fillStyle = color;
                     const subSize = size / 2;
@@ -200,7 +195,6 @@
             },
             {
                 id: 'erase',
-                icon: `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>`,
                 isEraser: true, // Special property for the eraser tool
                 draw: (ctx, x, y, size) => {
                     ctx.clearRect(x, y, size, size);
@@ -322,26 +316,43 @@
         }
         
         /**
-         * NEW: This function builds the template buttons from the library data.
-         */
-        function populateTemplateLibraryUI() {
-            const container = document.getElementById('template-library-container');
-            templateLibrary.forEach(template => {
-                const button = document.createElement('button');
-                button.id = `template-${template.id}`;
-                button.dataset.templateId = template.id; // Use data-attribute for clean selection
-                button.className = 'grid-button p-3 rounded-lg border-2 border-gray-300 bg-white hover:bg-gray-100 flex items-center justify-center text-gray-700 text-xl font-semibold';
-                
-                // Special styling for the eraser button
-                if (template.isEraser) {
-                    button.classList.add('bg-red-100', 'hover:bg-red-200', 'text-red-700');
-                }
+ * REVISED: This function now builds the template buttons by creating a mini-canvas
+ * for each one and running the template's draw function to create the icon.
+ */
+function populateTemplateLibraryUI() {
+    const container = document.getElementById('template-library-container');
+    // Clear any previous buttons
+    container.innerHTML = ''; 
 
-                button.innerHTML = template.icon;
-                button.addEventListener('click', () => selectTemplate(template.id));
-                container.appendChild(button);
-            });
+    templateLibrary.forEach(template => {
+        const button = document.createElement('button');
+        button.id = `template-${template.id}`;
+        button.dataset.templateId = template.id;
+        button.className = 'grid-button p-3 rounded-lg border-2 border-gray-300 bg-white hover:bg-gray-100 flex items-center justify-center';
+
+        if (template.isEraser) {
+            // For the eraser, we can use a simple SVG as it doesn't have a "stitch" pattern.
+            button.innerHTML = `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>`;
+            button.classList.add('bg-red-100', 'hover:bg-red-200', 'text-red-700');
+        } else {
+            // Create a mini-canvas for the icon
+            const iconCanvas = document.createElement('canvas');
+            iconCanvas.width = 24;  // Set a fixed small size for the icon
+            iconCanvas.height = 24;
+            const iconCtx = iconCanvas.getContext('2d');
+
+            // Call the template's own draw function on our mini-canvas!
+            // We draw it with a fixed black color and a small inset (padding).
+            const padding = 3;
+            template.draw(iconCtx, padding, padding, iconCanvas.width - padding * 2, '#374151'); // Using a dark gray color
+
+            button.appendChild(iconCanvas);
         }
+
+        button.addEventListener('click', () => selectTemplate(template.id));
+        container.appendChild(button);
+    });
+}
 
         // --- Event Listeners ---
         

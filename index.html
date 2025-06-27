@@ -112,13 +112,21 @@
     </div>
 
     <script>
-        // Initialize the application when the DOM is fully loaded
-        document.addEventListener('DOMContentLoaded', () => {
-            // Global variables for Firebase configuration and app ID (will be provided by the environment if applicable)
-            const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-            const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
-            const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+        
+        // Global variables for Firebase configuration and app ID (will be provided by the environment if applicable)
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+/**
+More actions
 
+         * This function runs when the entire window content (including images, scripts, etc.) has been loaded.
+
+         * It ensures that all DOM elements are available before script execution.
+
+         */
+
+         window.onload = function() {
             // Application state
             const canvas = document.getElementById('embroideryCanvas');
             const ctx = canvas.getContext('2d');
@@ -428,7 +436,7 @@ function populateTemplateLibraryUI() {
             populateTemplateLibraryUI(); // Create the buttons first
             drawGrid();
             selectTemplate('square'); // Select the default template
-        });
+        };
     </script>
 </body>
 </html>

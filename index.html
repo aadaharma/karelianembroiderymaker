@@ -348,7 +348,8 @@
 
         function checkForCollision(gridX, gridY){
             const newItem = { x: gridX, y: gridY, templateId: selectedTemplateId, color: currentColor };
-                    if (!pattern.some(item => item.x === gridX && item.y === gridY && item.templateId === selectedTemplateId)){
+            const oldIndex = pattern.findIndex(item => item.x === gridX && item.y === gridY && item.templateId === selectedTemplateId);
+                    if (oldIndex === -1){
                         if (selectedTemplateId === 'diag-forward' && pattern.some(item => item.x === gridX && item.y === gridY && item.templateId === 'cross')){
                             return;
                         }
@@ -367,7 +368,9 @@
                         if (selectedTemplateId === 'line-bottom' && pattern.some(item => item.x === gridX && item.y === gridY && item.templateId === 'square')){
                             return;
                         }
-                        pattern.push(newItem);
+                        pattern.push(newItem);            
+                    } else {
+                        pattern.splice(oldIndex, 1);
                     }
         }
         /**

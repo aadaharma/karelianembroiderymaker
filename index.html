@@ -340,16 +340,36 @@
                     }
                 } else {
                     // Note: We now store `templateId` instead of `type`
-                    const newItem = { x: gridX, y: gridY, templateId: selectedTemplateId, color: currentColor };
-                    if (!pattern.some(item => item.x === gridX && item.y === gridY && item.templateId === selectedTemplateId)){
-                        pattern.push(newItem);
-                    }
-                    
+                    checkForCollision(gridX, gridY);
                 }
                 drawGrid();
             }
         }
 
+        function checkForCollision(gridX, gridY){
+            const newItem = { x: gridX, y: gridY, templateId: selectedTemplateId, color: currentColor };
+                    if (!pattern.some(item => item.x === gridX && item.y === gridY && item.templateId === selectedTemplateId)){
+                        if (selectedTemplateId === 'diag-forward' && pattern.some(item => item.x === gridX && item.y === gridY && item.templateId === 'cross')){
+                            return;
+                        }
+                        if (selectedTemplateId === 'diag-backward' && pattern.some(item => item.x === gridX && item.y === gridY && item.templateId === 'cross')){
+                            return;
+                        }
+                        if (selectedTemplateId === 'line-left' && pattern.some(item => item.x === gridX && item.y === gridY && item.templateId === 'square')){
+                            return;
+                        }
+                        if (selectedTemplateId === 'line-right' && pattern.some(item => item.x === gridX && item.y === gridY && item.templateId === 'square')){
+                            return;
+                        }
+                        if (selectedTemplateId === 'line-top' && pattern.some(item => item.x === gridX && item.y === gridY && item.templateId === 'square')){
+                            return;
+                        }
+                        if (selectedTemplateId === 'line-bottom' && pattern.some(item => item.x === gridX && item.y === gridY && item.templateId === 'square')){
+                            return;
+                        }
+                        pattern.push(newItem);
+                    }
+        }
         /**
          * MODIFIED: A single function to handle selecting any template.
          */

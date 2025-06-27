@@ -29,7 +29,7 @@
             display: flex;
             flex-direction: column;
             gap: 24px;
-            max-width: 1000px; /* Max width for larger screens */
+            max-width: 100%; /* Max width for larger screens */
             width: 100%; /* Full width on smaller screens */
         }
         canvas {
@@ -89,58 +89,52 @@
         <!-- Controls Section: Template Selection, Color Picker, Action Buttons -->
         <div class="flex flex-col md:flex-row items-center justify-between gap-4 controls-group">
             <!-- Template Selection -->
-            <div id="template-library-container" class="flex flex-wrap gap-3 p-3 bg-gray-50 rounded-lg shadow-inner">
+            <div id="template-library-container" class="flex flex-wrap gap-3 p-3 bg-stone-50 rounded-lg shadow-inner">
             </div>
 
             <!-- Color Picker -->
-            <div class="flex items-center gap-2 p-3 bg-gray-50 rounded-lg shadow-inner">
-                <label for="color-picker" class="text-gray-700 font-medium">Color:</label>
-                <input type="color" id="color-picker" value="#3b82f6" class="w-10 h-10 rounded-md border border-gray-300 cursor-pointer">
+            <div class="flex items-center gap-2 p-3 bg-stone-50 rounded-lg shadow-inner">
+                <label for="color-picker" class="text-stone-700 font-medium">Color:</label>
+                <input type="color" id="color-picker" value="#BD0603" class="w-10 h-10 rounded-md border border-stone-300 cursor-pointer">
             </div>
 
             <!-- Action Buttons: Clear and Download -->
-            <div class="flex gap-3 p-3 bg-gray-50 rounded-lg shadow-inner">
-                <button id="button-clear" class="px-5 py-2 rounded-lg bg-red-500 text-white font-semibold hover:bg-red-600 transition-colors">Clear All</button>
-                <button id="button-download" class="px-5 py-2 rounded-lg bg-green-500 text-white font-semibold hover:bg-green-600 transition-colors">Download Pattern</button>
+            <div class="flex flex-col gap-3 p-3 bg-stone-50 rounded-lg shadow-inner">
+                <button id="button-clear" class="px-5 py-2 rounded-lg bg-red-800 text-white font-semibold hover:bg-red-900 transition-colors">Clear All</button>
+                <button id="button-download" class="px-5 py-2 rounded-lg bg-green-800 text-white font-semibold hover:bg-green-900 transition-colors">Download Pattern</button>
             </div>
         </div>
 
         <!-- Canvas for drawing the embroidery pattern -->
-        <div class="flex justify-center items-center overflow-auto p-2 bg-gray-100 rounded-lg shadow-inner">
+        <div class="flex justify-center items-center overflow-auto p-2 bg-stone-100 rounded-lg shadow-inner">
             <canvas id="embroideryCanvas" class="rounded-md"></canvas>
         </div>
     </div>
 
     <script>
-        // Global variables for Firebase configuration and app ID (will be provided by the environment if applicable)
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
-        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+        // Initialize the application when the DOM is fully loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            // Global variables for Firebase configuration and app ID (will be provided by the environment if applicable)
+            const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+            const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
+            const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
 
-        /**
-         * This function runs when the entire window content (including images, scripts, etc.) has been loaded.
-         * It ensures that all DOM elements are available before script execution.
-         */
-        window.onload = function() {
-        
+            // Application state
+            const canvas = document.getElementById('embroideryCanvas');
+            const ctx = canvas.getContext('2d');
+            ctx.globalCompositeOperation = "hue";
+            
+            // Grid configuration
+            const CELL_SIZE = 30; // Size of each grid cell in pixels
+            const GRID_WIDTH = 25; // Number of cells horizontally
+            const GRID_HEIGHT = 20; // Number of cells vertically
 
-        // Get the canvas element and its 2D rendering context
-        const canvas = document.getElementById('embroideryCanvas');
-        const ctx = canvas.getContext('2d');
-        ctx.globalCompositeOperation = "hue";
-
-        // Define constants for grid dimensions and cell size
-        const CELL_SIZE = 30; // Size of each grid cell in pixels
-        const GRID_WIDTH = 25; // Number of cells horizontally
-        const GRID_HEIGHT = 20; // Number of cells vertically
-
-        // Set canvas dimensions
-        canvas.width = GRID_WIDTH * CELL_SIZE;
-        canvas.height = GRID_HEIGHT * CELL_SIZE;
+            // Set canvas dimensions
+            canvas.width = GRID_WIDTH * CELL_SIZE;
+            canvas.height = GRID_HEIGHT * CELL_SIZE;
         
         // --- NEW: The Template Library ---
         // This array is the single source of truth for all available templates.
-        // To add a new template, you just add a new object to this array.
         const templateLibrary = [
             {
                 id: 'square',
@@ -197,20 +191,19 @@
                     ctx.strokeStyle = color;
                     ctx.lineWidth = 2;
                     ctx.beginPath();
-                    ctx.moveTo(x  , y );
-                    ctx.lineTo(x + size , y + size );
+                    ctx.move(x, y);
+                    ctx.lineTo(x + size, y + size);
                     ctx.stroke();
                 }
             },
-             // Example of a new, more complex template
             {
                 id: 'line-left',
                 draw: (ctx, x, y, size, color) => {
                     ctx.strokeStyle = color;
                     ctx.lineWidth = 2;
                     ctx.beginPath();
-                    ctx.moveTo(x , y);
-                    ctx.lineTo(x , y + size );
+                    ctx.moveTo(x, y);
+                    ctx.lineTo(x, y + size);
                     ctx.stroke();
                 }
             },
@@ -220,8 +213,8 @@
                     ctx.strokeStyle = color;
                     ctx.lineWidth = 2;
                     ctx.beginPath();
-                    ctx.moveTo(x + size , y);
-                    ctx.lineTo(x + size , y + size );
+                    ctx.moveTo(x + size, y);
+                    ctx.lineTo(x + size, y + size);
                     ctx.stroke();
                 }
             },
@@ -231,8 +224,8 @@
                     ctx.strokeStyle = color;
                     ctx.lineWidth = 2;
                     ctx.beginPath();
-                    ctx.moveTo(x , y);
-                    ctx.lineTo(x + size , y );
+                    ctx.moveTo(x, y);
+                    ctx.lineTo(x + size, y);
                     ctx.stroke();
                 }
             },
@@ -242,14 +235,14 @@
                     ctx.strokeStyle = color;
                     ctx.lineWidth = 2;
                     ctx.beginPath();
-                    ctx.moveTo(x , y + size);
-                    ctx.lineTo(x + size, y + size );
+                    ctx.moveTo(x, y + size);
+                    ctx.lineTo(x + size, y + size);
                     ctx.stroke();
                 }
             },
             {
                 id: 'erase',
-                isEraser: true, // Special property for the eraser tool
+                isEraser: true,
                 draw: (ctx, x, y, size) => {
                     ctx.clearRect(x, y, size, size);
                 }
@@ -435,7 +428,7 @@ function populateTemplateLibraryUI() {
             populateTemplateLibraryUI(); // Create the buttons first
             drawGrid();
             selectTemplate('square'); // Select the default template
-        };
+        });
     </script>
 </body>
 </html>

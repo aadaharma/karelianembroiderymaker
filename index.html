@@ -341,7 +341,10 @@
                 } else {
                     // Note: We now store `templateId` instead of `type`
                     const newItem = { x: gridX, y: gridY, templateId: selectedTemplateId, color: currentColor };
-                    pattern.push(newItem);
+                    if (!pattern.some(item => item.x === gridX && item.y === gridY && item.templateId === selectedTemplateId)){
+                        pattern.push(newItem);
+                    }
+                    
                 }
                 drawGrid();
             }

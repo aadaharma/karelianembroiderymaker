@@ -29,7 +29,7 @@
             display: flex;
             flex-direction: column;
             gap: 24px;
-            max-width: 1000px; /* Max width for larger screens */
+            max-width: 100%; /* Max width for larger screens */
             width: 100%; /* Full width on smaller screens */
         }
         canvas {
@@ -53,9 +53,9 @@
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
         }
         .grid-button.selected {
-            border-color: #3b82f6; /* Blue-500 for selected button border */
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.5); /* Blue-500 glow for selected */
-            background-color: #dbeafe; /* Light blue background for selected button */
+            border-color: #65a30d; /* Green-500 for selected button border */
+            box-shadow: 0 0 0 3px #3f6212; /* Green-500 glow for selected */
+            background-color: #f7fee7; /* Light green background for selected button */
         }
         /* Style for the download and clear buttons */
         #button-clear, #button-download {
@@ -84,7 +84,7 @@
 <body>
     <div class="container">
         <!-- Main Heading -->
-        <h1 class="text-3xl font-bold text-gray-800 text-center">Karelian Embroidery Designer</h1>
+        <h1 class="text-3xl font-bold text-rose-950 text-center">Karelian Embroidery Designer</h1>
 
         <!-- Controls Section: Template Selection, Color Picker, Action Buttons -->
         <div class="flex flex-col md:flex-row items-center justify-between gap-4 controls-group">
@@ -93,15 +93,15 @@
             </div>
 
             <!-- Color Picker -->
-            <div class="flex items-center gap-2 p-3 bg-stone-50 rounded-lg shadow-inner">
+            <div class="flex flex-col gap-2 p-3 bg-stone-50 rounded-lg shadow-inner">
                 <label for="color-picker" class="text-stone-700 font-medium">Color:</label>
                 <input type="color" id="color-picker" value="#BD0603" class="w-10 h-10 rounded-md border border-stone-300 cursor-pointer">
             </div>
 
             <!-- Action Buttons: Clear and Download -->
-            <div class="flex gap-3 p-3 bg-stone-50 rounded-lg shadow-inner">
-                <button id="button-clear" class="px-5 py-2 rounded-lg bg-red-800 text-white font-semibold hover:bg-red-900 transition-colors">Clear All</button>
-                <button id="button-download" class="px-5 py-2 rounded-lg bg-green-800 text-white font-semibold hover:bg-green-900 transition-colors">Download Pattern</button>
+            <div class="flex flex-col gap-2 p-3 bg-stone-50 rounded-lg shadow-inner">
+                <button id="button-clear" class="px-5 py-2 rounded-lg bg-rose-800 text-white font-semibold hover:bg-rose-900 transition-colors">Clear All</button>
+                <button id="button-download" class="px-5 py-2 rounded-lg bg-lime-800 text-white font-semibold hover:bg-lime-900 transition-colors">Download Pattern</button>
             </div>
         </div>
 
@@ -332,7 +332,7 @@
             const gridY = Math.floor(mouseY / CELL_SIZE);
 
             if (gridX >= 0 && gridX < GRID_WIDTH && gridY >= 0 && gridY < GRID_HEIGHT) {
-                const existingIndex = pattern.findIndex(item => item.x === gridX && item.y === gridY);
+                const existingIndex = pattern.findLastIndex(item => item.x === gridX && item.y === gridY);
 
                 if (selectedTemplateId === 'erase') {
                     if (existingIndex !== -1) {

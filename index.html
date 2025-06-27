@@ -99,7 +99,7 @@
             </div>
 
             <!-- Action Buttons: Clear and Download -->
-            <div class="flex flex-col gap-3 p-3 bg-stone-50 rounded-lg shadow-inner">
+            <div class="flex gap-3 p-3 bg-stone-50 rounded-lg shadow-inner">
                 <button id="button-clear" class="px-5 py-2 rounded-lg bg-red-800 text-white font-semibold hover:bg-red-900 transition-colors">Clear All</button>
                 <button id="button-download" class="px-5 py-2 rounded-lg bg-green-800 text-white font-semibold hover:bg-green-900 transition-colors">Download Pattern</button>
             </div>
@@ -117,13 +117,9 @@
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
         const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
         const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
-/**
-More actions
-
+        /**
          * This function runs when the entire window content (including images, scripts, etc.) has been loaded.
-
          * It ensures that all DOM elements are available before script execution.
-
          */
 
          window.onload = function() {

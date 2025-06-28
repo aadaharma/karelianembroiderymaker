@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, minimum-scale=1.0">
     <title>Karelian Embroidery Designer</title>
     <!-- Google Fonts - Inter for clean typography -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -47,6 +47,7 @@
             touch-action: none; /* Disable default touch actions like pinch-zoom to allow drawing */
             border-radius: 8px; /* Rounded corners for canvas */
             max-width: 100%; /* Ensure canvas scales down on small screens */
+            object-fit: contain;
             height: auto; /* Maintain aspect ratio */
         }
         /* Styling for template selection buttons */
@@ -140,8 +141,8 @@
             
             // Grid configuration
             const CELL_SIZE = 30; // Size of each grid cell in pixels
-            const GRID_WIDTH = 25; // Number of cells horizontally
-            const GRID_HEIGHT = 20; // Number of cells vertically
+            let GRID_WIDTH = Math.floor(window.innerWidth / CELL_SIZE); // Number of cells horizontally
+            let GRID_HEIGHT = Math.floor(window.innerHeight / CELL_SIZE); // Number of cells vertically
 
             // Set canvas dimensions
             canvas.width = GRID_WIDTH * CELL_SIZE;
@@ -438,6 +439,15 @@ function populateTemplateLibraryUI() {
 }
 
         // --- Event Listeners ---
+            window.addEventListener("resize", () => {
+                GRID_WIDTH = Math.floor(window.innerWidth / CELL_SIZE); // Number of cells horizontally
+                GRID_HEIGHT = Math.floor(window.innerHeight / CELL_SIZE); // Number of cells vertically
+                canvas.width = GRID_WIDTH * CELL_SIZE;
+                canvas.height = GRID_HEIGHT * CELL_SIZE;
+                ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+                drawGrid();
+            })
+
             // No longer need individual listeners for each template button
             document.getElementById('color-picker').addEventListener('input', (event) => {
                 currentColor = event.target.value;

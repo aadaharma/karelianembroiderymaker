@@ -96,6 +96,7 @@
             <div class="flex flex-col gap-2 p-3 bg-stone-50 rounded-lg shadow-inner">
                 <label for="color-picker" class="text-stone-700 font-medium">Color:</label>
                 <input type="color" id="color-picker" value="#BD0603" class="w-10 h-10 rounded-md border border-stone-300 cursor-pointer">
+                <button id="button-undo" class="p-3 rounded-lg border-2 border-gray-300 bg-white hover:bg-gray-100 flex items-center justify-center">Undo</button>
             </div>
 
             <!-- Action Buttons: Clear and Download -->
@@ -438,6 +439,12 @@ function populateTemplateLibraryUI() {
                 drawGrid();
             });
 
+
+            document.getElementById('button-undo').addEventListener('click', () => {
+                pattern.pop();
+                drawGrid();
+            });
+            
             document.getElementById('button-download').addEventListener('click', () => {
                 const dataURL = canvas.toDataURL('image/png');
                 const link = document.createElement('a');

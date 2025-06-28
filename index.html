@@ -5,13 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Karelian Embroidery Designer</title>
     <!-- Google Fonts - Inter for clean typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=IM+Fell+DW+Pica:ital@0;1&family=Jacquarda+Bastarda+9&display=swap" rel="stylesheet">
     <!-- Tailwind CSS CDN for styling -->
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         /* Custom styles to enhance responsiveness and visual appeal */
         body {
-            font-family: 'Inter', sans-serif;
+            font-family:  "IM Fell DW Pica", serif;
             background-color: #f8f8f8; /* Light background */
             display: flex;
             justify-content: center;
@@ -20,6 +23,11 @@
             margin: 0;
             padding: 20px;
             box-sizing: border-box;
+        }
+        h1 {
+            font-family: "Jacquarda Bastarda 9", serif;
+            font-weight: 400;
+            font-size: 300px;
         }
         .container {
             background-color: #ffffff;
@@ -32,6 +40,7 @@
             max-width: 100%; /* Max width for larger screens */
             width: 100%; /* Full width on smaller screens */
         }
+
         canvas {
             border: 1px solid #e5e7eb; /* Light border around canvas */
             background-color: #ffffff;
@@ -84,19 +93,19 @@
 <body>
     <div class="container">
         <!-- Main Heading -->
-        <h1 class="text-3xl font-bold text-rose-950 text-center">Karelian Embroidery Designer</h1>
+        <h1 class="text-5xl font-bold text-rose-950 text-center">Karelian Embroidery Designer</h1>
 
         <!-- Controls Section: Template Selection, Color Picker, Action Buttons -->
-        <div class="flex flex-col md:flex-row items-center justify-between gap-4 controls-group">
+        <div id="control-section" class="flex flex-row items-center justify-center gap-4 controls-group">
             <!-- Template Selection -->
             <div id="template-library-container" class="flex flex-wrap gap-3 p-3 bg-stone-50 rounded-lg shadow-inner">
             </div>
 
             <!-- Color Picker -->
-            <div class="flex flex-col gap-2 p-3 bg-stone-50 rounded-lg shadow-inner">
+            <div class="flex flex-col items-center gap-2 p-3 bg-stone-50 rounded-lg shadow-inner">
                 <label for="color-picker" class="text-stone-700 font-medium">Color:</label>
-                <input type="color" id="color-picker" value="#BD0603" class="w-10 h-10 rounded-md border border-stone-300 cursor-pointer">
-                <button id="button-undo" class="p-3 rounded-lg border-2 border-gray-300 bg-white hover:bg-gray-100 flex items-center justify-center">Undo</button>
+                <input type="color" id="color-picker" value="#BD0603" class="w-10 h-10 rounded-md border-stone-300 cursor-pointer">
+                <button id="button-undo" class="text-stone-700 p-3 rounded-lg border-2 border-gray-300 bg-white hover:bg-gray-100 flex items-center justify-center">Undo</button>
             </div>
 
             <!-- Action Buttons: Clear and Download -->
@@ -402,12 +411,12 @@ function populateTemplateLibraryUI() {
         const button = document.createElement('button');
         button.id = `template-${template.id}`;
         button.dataset.templateId = template.id;
-        button.className = 'grid-button p-3 rounded-lg border-2 border-gray-300 bg-white hover:bg-gray-100 flex items-center justify-center';
+        button.className = 'grid-button p-3 rounded-lg border-2 border-stone-300 bg-white hover:bg-stone-100 flex items-center justify-center';
 
         if (template.isEraser) {
             // For the eraser, we can use a simple SVG as it doesn't have a "stitch" pattern.
             button.innerHTML = `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>`;
-            button.classList.add('bg-red-100', 'hover:bg-red-200', 'text-red-700');
+            button.classList.add('bg-stone-100', 'hover:bg-rose-200', 'text-rose-700');
         } else {
             // Create a mini-canvas for the icon
             const iconCanvas = document.createElement('canvas');
@@ -444,7 +453,7 @@ function populateTemplateLibraryUI() {
                 pattern.pop();
                 drawGrid();
             });
-            
+
             document.getElementById('button-download').addEventListener('click', () => {
                 const dataURL = canvas.toDataURL('image/png');
                 const link = document.createElement('a');

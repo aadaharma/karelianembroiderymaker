@@ -131,9 +131,6 @@
      {
          id: 'erase',
          isEraser: true,
-         draw: (ctx, x, y, size) => {
-             ctx.clearRect(x, y, size, size);
-         }
      }
  ];
 
@@ -168,10 +165,10 @@
     });
  }
 
+
  
  /**
-  * REFACTORED: Finds the correct template from the library and executes its draw method.
-  * This replaces the old switch statement.
+  * Finds the correct template from the library and executes its draw method.
   */
  function drawTemplate(gridX, gridY, templateId, color) {
      const template = templateLibrary.find(t => t.id === templateId);
@@ -183,16 +180,10 @@
      // The template's own draw function is called
      template.draw(ctx, pixelX, pixelY, CELL_SIZE, color);
 
-     // If we erased, we need to redraw the single grid cell border
-     if (template.isEraser) {
-         ctx.strokeStyle = '#e5e7eb';
-         ctx.lineWidth = 1;
-         ctx.strokeRect(pixelX, pixelY, CELL_SIZE, CELL_SIZE);
-     }
  }
 
  /**
-  * MODIFIED: handles canvas clicks, now storing the templateId instead of a 'type'.
+  * Handles canvas clicks to add new elements to the pattern.
   */
  function handleCanvasClick(event) {
      const rect = canvas.getBoundingClientRect();
@@ -214,11 +205,18 @@
          if (selectedTemplateId === 'erase') {
              if (existingIndex !== -1) {
                  pattern.splice(existingIndex, 1);
+                 drawGrid();
+                 return;
              }
          } else {
-             checkForCollision(gridX, gridY);
+             if (!checkForCollision(gridX, gridY)) {
+                let item = pattern[pattern.length-1];
+                drawTemplate(item.x, item.y, item.templateId, item.color);
+             } else {
+                 drawGrid();
+             }
          }
-         drawGrid();
+         
      }
  }
 
@@ -227,30 +225,34 @@
      const oldIndex = pattern.findIndex(item => item.x === gridX && item.y === gridY && item.templateId === selectedTemplateId);
              if (oldIndex === -1){
                  if (selectedTemplateId === 'diag-forward' && pattern.some(item => item.x === gridX && item.y === gridY && item.templateId === 'cross')){
-                     return;
+                     return true;
                  }
                  if (selectedTemplateId === 'diag-backward' && pattern.some(item => item.x === gridX && item.y === gridY && item.templateId === 'cross')){
-                     return;
+                     return true;
                  }
                  if (selectedTemplateId === 'line-left' && pattern.some(item => item.x === gridX && item.y === gridY && item.templateId === 'square')){
-                     return;
+                     return true;
                  }
                  if (selectedTemplateId === 'line-right' && pattern.some(item => item.x === gridX && item.y === gridY && item.templateId === 'square')){
-                     return;
+                     return true;
                  }
                  if (selectedTemplateId === 'line-top' && pattern.some(item => item.x === gridX && item.y === gridY && item.templateId === 'square')){
-                     return;
+                     return true;
                  }
                  if (selectedTemplateId === 'line-bottom' && pattern.some(item => item.x === gridX && item.y === gridY && item.templateId === 'square')){
-                     return;
+                     return true;
                  }
-                 pattern.push(newItem);            
+                 // No collision, add the item
+                 pattern.push(newItem);
+                 return false;            
              } else {
+                // If the item already exists, remove it
                  pattern.splice(oldIndex, 1);
+                 return true;
              }
  }
  /**
-  * MODIFIED: A single function to handle selecting any template.
+  * A single function to handle selecting any template.
   */
  function selectTemplate(templateId) {
      selectedTemplateId = templateId;
@@ -265,7 +267,7 @@
  }
  
  /**
-* REVISED: This function now builds the template buttons by creating a mini-canvas
+* This function now builds the template buttons by creating a mini-canvas
 * for each one and running the template's draw function to create the icon.
 */
 function populateTemplateLibraryUI() {

@@ -1,0 +1,361 @@
+ // Global variables for Firebase configuration and app ID (will be provided by the environment if applicable)
+ const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+ const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
+ const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+ /**
+  * This function runs when the entire window content (including images, scripts, etc.) has been loaded.
+  * It ensures that all DOM elements are available before script execution.
+  */
+
+  window.onload = function() {
+     // Application state
+     const canvas = document.getElementById('embroideryCanvas');
+     const ctx = canvas.getContext('2d');
+     ctx.globalCompositeOperation = "hue";
+     
+     // Grid configuration
+     const CELL_SIZE = 30; // Size of each grid cell in pixels
+     let GRID_WIDTH = Math.floor(window.innerWidth / CELL_SIZE); // Number of cells horizontally
+     let GRID_HEIGHT = Math.floor(window.innerHeight / CELL_SIZE); // Number of cells vertically
+
+     // Set canvas dimensions
+     canvas.width = GRID_WIDTH * CELL_SIZE;
+     canvas.height = GRID_HEIGHT * CELL_SIZE;
+ 
+ // --- NEW: The Template Library ---
+ // This array is the single source of truth for all available templates.
+ const templateLibrary = [
+     {
+         id: 'square',
+         draw: (ctx, x, y, size, color) => {
+             ctx.strokeStyle = color;
+             ctx.lineWidth = 2;
+             ctx.beginPath();
+             ctx.moveTo(x , y);
+             ctx.lineTo(x , y + size );
+             ctx.stroke();
+             ctx.beginPath();
+             ctx.moveTo(x , y + size);
+             ctx.lineTo(x + size , y + size);
+             ctx.stroke();
+             ctx.beginPath();
+             ctx.moveTo(x + size , y + size);
+             ctx.lineTo(x + size , y);
+             ctx.stroke();
+             ctx.beginPath();
+             ctx.moveTo(x + size , y);
+             ctx.lineTo(x , y);
+             ctx.stroke();
+         }
+     },
+     {
+         id: 'cross',
+         draw: (ctx, x, y, size, color) => {
+             ctx.strokeStyle = color;
+             ctx.lineWidth = 2;
+             ctx.beginPath();
+             ctx.moveTo(x , y );
+             ctx.lineTo(x + size , y + size );
+             ctx.stroke();
+             ctx.beginPath();
+             ctx.moveTo(x + size , y );
+             ctx.lineTo(x , y + size );
+             ctx.stroke();
+         }
+     },
+     {
+         id: 'diag-forward',
+         draw: (ctx, x, y, size, color) => {
+             ctx.strokeStyle = color;
+             ctx.lineWidth = 2;
+             ctx.beginPath();
+             ctx.moveTo(x , y + size );
+             ctx.lineTo(x + size , y );
+             ctx.stroke();
+         }
+     },
+     {
+         id: 'diag-backward',
+         draw: (ctx, x, y, size, color) => {
+             ctx.strokeStyle = color;
+             ctx.lineWidth = 2;
+             ctx.beginPath();
+             ctx.moveTo(x, y);
+             ctx.lineTo(x + size, y + size);
+             ctx.stroke();
+         }
+     },
+     {
+         id: 'line-left',
+         draw: (ctx, x, y, size, color) => {
+             ctx.strokeStyle = color;
+             ctx.lineWidth = 2;
+             ctx.beginPath();
+             ctx.moveTo(x, y);
+             ctx.lineTo(x, y + size);
+             ctx.stroke();
+         }
+     },
+     {
+         id: 'line-right',
+         draw: (ctx, x, y, size, color) => {
+             ctx.strokeStyle = color;
+             ctx.lineWidth = 2;
+             ctx.beginPath();
+             ctx.moveTo(x + size, y);
+             ctx.lineTo(x + size, y + size);
+             ctx.stroke();
+         }
+     },
+     {
+         id: 'line-top',
+         draw: (ctx, x, y, size, color) => {
+             ctx.strokeStyle = color;
+             ctx.lineWidth = 2;
+             ctx.beginPath();
+             ctx.moveTo(x, y);
+             ctx.lineTo(x + size, y);
+             ctx.stroke();
+         }
+     },
+     {
+         id: 'line-bottom',
+         draw: (ctx, x, y, size, color) => {
+             ctx.strokeStyle = color;
+             ctx.lineWidth = 2;
+             ctx.beginPath();
+             ctx.moveTo(x, y + size);
+             ctx.lineTo(x + size, y + size);
+             ctx.stroke();
+         }
+     },
+     {
+         id: 'erase',
+         isEraser: true,
+         draw: (ctx, x, y, size) => {
+             ctx.clearRect(x, y, size, size);
+         }
+     }
+ ];
+
+ // State variables for the designer
+ let selectedTemplateId = 'square'; // Default template selected
+ let currentColor = '#BD0603'; // Default drawing color
+ let pattern = []; // Stores the pattern data: { x, y, templateId, color }
+
+ /**
+  * MODIFIED: Draws the grid and then redraws all existing pattern elements.
+  */
+ function drawGrid() {
+     ctx.clearRect(0, 0, canvas.width, canvas.height);
+     ctx.strokeStyle = '#e5e7eb';
+     ctx.lineWidth = 1;
+
+     for (let i = 0; i <= GRID_WIDTH; i++) {
+         ctx.beginPath();
+         ctx.moveTo(i * CELL_SIZE, 0);
+         ctx.lineTo(i * CELL_SIZE, canvas.height);
+         ctx.stroke();
+     }
+
+     for (let i = 0; i <= GRID_HEIGHT; i++) {
+         ctx.beginPath();
+         ctx.moveTo(0, i * CELL_SIZE);
+         ctx.lineTo(canvas.width, i * CELL_SIZE);
+         ctx.stroke();
+     }
+     redrawPattern();
+ }
+
+ /**
+  * MODIFIED: Iterates through the `pattern` array and redraws each element
+  * by finding its template in the library and calling its draw function.
+  */
+ function redrawPattern() {
+     pattern.forEach(item => {
+         drawTemplate(item.x, item.y, item.templateId, item.color);
+     });
+ }
+ 
+ /**
+  * REFACTORED: Finds the correct template from the library and executes its draw method.
+  * This replaces the old switch statement.
+  */
+ function drawTemplate(gridX, gridY, templateId, color) {
+     const template = templateLibrary.find(t => t.id === templateId);
+     if (!template) return; // Exit if template not found
+
+     const pixelX = gridX * CELL_SIZE;
+     const pixelY = gridY * CELL_SIZE;
+
+     // The template's own draw function is called
+     template.draw(ctx, pixelX, pixelY, CELL_SIZE, color);
+
+     // If we erased, we need to redraw the single grid cell border
+     if (template.isEraser) {
+         ctx.strokeStyle = '#e5e7eb';
+         ctx.lineWidth = 1;
+         ctx.strokeRect(pixelX, pixelY, CELL_SIZE, CELL_SIZE);
+     }
+ }
+
+ /**
+  * MODIFIED: handles canvas clicks, now storing the templateId instead of a 'type'.
+  */
+ function handleCanvasClick(event) {
+     const rect = canvas.getBoundingClientRect();
+     const scaleX = canvas.width / rect.width;
+     const scaleY = canvas.height / rect.height;
+
+     const clientX = event.clientX || (event.touches && event.touches[0].clientX);
+     const clientY = event.clientY || (event.touches && event.touches[0].clientY);
+
+     const mouseX = (clientX - rect.left) * scaleX;
+     const mouseY = (clientY - rect.top) * scaleY;
+
+     const gridX = Math.floor(mouseX / CELL_SIZE);
+     const gridY = Math.floor(mouseY / CELL_SIZE);
+
+     if (gridX >= 0 && gridX < GRID_WIDTH && gridY >= 0 && gridY < GRID_HEIGHT) {
+         const existingIndex = pattern.findLastIndex(item => item.x === gridX && item.y === gridY);
+
+         if (selectedTemplateId === 'erase') {
+             if (existingIndex !== -1) {
+                 pattern.splice(existingIndex, 1);
+             }
+         } else {
+             // Note: We now store `templateId` instead of `type`
+             checkForCollision(gridX, gridY);
+         }
+         drawGrid();
+     }
+ }
+
+ function checkForCollision(gridX, gridY){
+     const newItem = { x: gridX, y: gridY, templateId: selectedTemplateId, color: currentColor };
+     const oldIndex = pattern.findIndex(item => item.x === gridX && item.y === gridY && item.templateId === selectedTemplateId);
+             if (oldIndex === -1){
+                 if (selectedTemplateId === 'diag-forward' && pattern.some(item => item.x === gridX && item.y === gridY && item.templateId === 'cross')){
+                     return;
+                 }
+                 if (selectedTemplateId === 'diag-backward' && pattern.some(item => item.x === gridX && item.y === gridY && item.templateId === 'cross')){
+                     return;
+                 }
+                 if (selectedTemplateId === 'line-left' && pattern.some(item => item.x === gridX && item.y === gridY && item.templateId === 'square')){
+                     return;
+                 }
+                 if (selectedTemplateId === 'line-right' && pattern.some(item => item.x === gridX && item.y === gridY && item.templateId === 'square')){
+                     return;
+                 }
+                 if (selectedTemplateId === 'line-top' && pattern.some(item => item.x === gridX && item.y === gridY && item.templateId === 'square')){
+                     return;
+                 }
+                 if (selectedTemplateId === 'line-bottom' && pattern.some(item => item.x === gridX && item.y === gridY && item.templateId === 'square')){
+                     return;
+                 }
+                 pattern.push(newItem);            
+             } else {
+                 pattern.splice(oldIndex, 1);
+             }
+ }
+ /**
+  * MODIFIED: A single function to handle selecting any template.
+  */
+ function selectTemplate(templateId) {
+     selectedTemplateId = templateId;
+     const buttons = document.querySelectorAll('.grid-button');
+     buttons.forEach(button => {
+         if (button.dataset.templateId === templateId) {
+             button.classList.add('selected');
+         } else {
+             button.classList.remove('selected');
+         }
+     });
+ }
+ 
+ /**
+* REVISED: This function now builds the template buttons by creating a mini-canvas
+* for each one and running the template's draw function to create the icon.
+*/
+function populateTemplateLibraryUI() {
+const container = document.getElementById('template-library-container');
+// Clear any previous buttons
+container.innerHTML = ''; 
+
+templateLibrary.forEach(template => {
+ const button = document.createElement('button');
+ button.id = `template-${template.id}`;
+ button.dataset.templateId = template.id;
+ button.className = 'grid-button p-3 rounded-lg border-2 border-stone-300 bg-white hover:bg-stone-100 flex items-center justify-center';
+
+ if (template.isEraser) {
+     // For the eraser, we can use a simple SVG as it doesn't have a "stitch" pattern.
+     button.innerHTML = `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>`;
+     button.classList.add('bg-stone-100', 'hover:bg-rose-200', 'text-rose-700');
+ } else {
+     // Create a mini-canvas for the icon
+     const iconCanvas = document.createElement('canvas');
+     iconCanvas.width = 24;  // Set a fixed small size for the icon
+     iconCanvas.height = 24;
+     const iconCtx = iconCanvas.getContext('2d');
+
+     // Call the template's own draw function on our mini-canvas!
+     // We draw it with a fixed black color and a small inset (padding).
+     const padding = 3;
+     template.draw(iconCtx, padding, padding, iconCanvas.width - padding * 2, '#374151'); // Using a dark gray color
+
+     button.appendChild(iconCanvas);
+ }
+
+ button.addEventListener('click', () => selectTemplate(template.id));
+ container.appendChild(button);
+});
+}
+
+ // --- Event Listeners ---
+     window.addEventListener("resize", () => {
+         GRID_WIDTH = Math.floor(window.innerWidth / CELL_SIZE); // Number of cells horizontally
+         GRID_HEIGHT = Math.floor(window.innerHeight / CELL_SIZE); // Number of cells vertically
+         canvas.width = GRID_WIDTH * CELL_SIZE;
+         canvas.height = GRID_HEIGHT * CELL_SIZE;
+         ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+         drawGrid();
+     })
+
+     // No longer need individual listeners for each template button
+     document.getElementById('color-picker').addEventListener('input', (event) => {
+         currentColor = event.target.value;
+     });
+
+     document.getElementById('button-clear').addEventListener('click', () => {
+         pattern = [];
+         drawGrid();
+     });
+
+
+     document.getElementById('button-undo').addEventListener('click', () => {
+         pattern.pop();
+         drawGrid();
+     });
+
+     document.getElementById('button-download').addEventListener('click', () => {
+         const dataURL = canvas.toDataURL('image/png');
+         const link = document.createElement('a');
+         link.download = 'karelian_embroidery_pattern.png';
+         link.href = dataURL;
+         document.body.appendChild(link);
+         link.click();
+         document.body.removeChild(link);
+     });
+
+     canvas.addEventListener('click', handleCanvasClick);
+     canvas.addEventListener('touchstart', (e) => {
+         e.preventDefault();
+         handleCanvasClick(e.touches[0]);
+     }, { passive: false });
+
+     // --- Initial Setup ---
+     populateTemplateLibraryUI(); // Create the buttons first
+     drawGrid();
+     selectTemplate('square'); // Select the default template
+ };

@@ -19,8 +19,8 @@
      let GRID_HEIGHT = Math.floor(window.innerHeight / CELL_SIZE); // Number of cells vertically
 
      // Set canvas dimensions
-     canvas.width = 65 * CELL_SIZE;
-     canvas.height = 30 * CELL_SIZE;
+     canvas.width = GRID_WIDTH * CELL_SIZE;
+     canvas.height = GRID_HEIGHT * CELL_SIZE;
  
 // Embroidery template library
  const templateLibrary = [
@@ -307,11 +307,11 @@ templateLibrary.forEach(template => {
 
  // --- Event Listeners ---
      window.addEventListener("resize", () => {
-         GRID_WIDTH = Math.floor(window.innerWidth / CELL_SIZE); // Number of cells horizontally
-         GRID_HEIGHT = Math.floor(window.innerHeight / CELL_SIZE); // Number of cells vertically
-         canvas.width = GRID_WIDTH * CELL_SIZE;
-         canvas.height = GRID_HEIGHT * CELL_SIZE;
-         ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+         //GRID_WIDTH = Math.floor(window.innerWidth / CELL_SIZE); // Number of cells horizontally
+         //GRID_HEIGHT = Math.floor(window.innerHeight / CELL_SIZE); // Number of cells vertically
+         //canvas.width = GRID_WIDTH * CELL_SIZE;
+         //canvas.height = GRID_HEIGHT * CELL_SIZE;
+         //ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
          drawGrid();
      })
 
@@ -331,6 +331,19 @@ templateLibrary.forEach(template => {
          drawGrid();
      });
 
+     document.getElementById('width-picker').addEventListener('input', (event) => {
+         GRID_WIDTH = parseInt(event.target.value);
+         canvas.width = GRID_WIDTH * CELL_SIZE;
+         drawGrid();
+     });
+
+     document.getElementById('height-picker').addEventListener('input', (event) => {
+         GRID_HEIGHT = parseInt(event.target.value);
+         canvas.height = GRID_HEIGHT * CELL_SIZE;
+         drawGrid();
+     });
+
+    
      document.getElementById('button-download').addEventListener('click', () => {
          const dataURL = canvas.toDataURL('image/png');
          const link = document.createElement('a');

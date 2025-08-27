@@ -32,7 +32,8 @@ canvas {
     background-color: #ffffff;
     touch-action: none; /* Disable default touch actions like pinch-zoom to allow drawing */
     border-radius: 8px; /* Rounded corners for canvas */
-    max-width: 100%; /* Ensure canvas scales down on small screens */
+    width: 100%; /* Ensure canvas scales down on small screens */
+    height: 100%;
     object-fit: contain;
     height: auto; /* Maintain aspect ratio */
 }

@@ -5,58 +5,57 @@
     <meta name="viewport" content="width=device-width, minimum-scale=1.0">
     <title>Karelian Embroidery Designer</title>
     <link rel="stylesheet" href="appstyle.css">
+    <script src="https://cdn.tailwindcss.com"></script>
     <script type="text/javascript" src="index.js"></script>
-    <!-- Google Fonts - Inter for clean typography -->
+    
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=IM+Fell+DW+Pica:ital@0;1&family=Jacquarda+Bastarda+9&display=swap" rel="stylesheet">
-    <!-- Tailwind CSS CDN for styling -->
-    <script src="https://cdn.tailwindcss.com"></script>
+    
     
 </head>
-<body>
-    <div class="container">
+<body class="bg-gradient-to-tr from-amber-500 to-rose-800">
+    <div class="container bg-amber-50">
         <!-- Main Heading -->
-        <h1 class="text-5xl font-bold text-rose-950 text-center">Karelian Embroidery Designer</h1>
+        <h1 class="text-5xl font-bold text-rose-900 text-center">Karelian Embroidery Designer</h1>
 
         <!-- Controls Section: Template Selection, Color Picker, Action Buttons -->
         <div id="control-section" class="flex flex-row items-center justify-center gap-4 controls-group">
             <!-- Template Selection -->
-            <div id="template-library-container" class="flex flex-wrap gap-3 p-3 bg-stone-50 rounded-lg shadow-inner">
+            <div id="template-library-container" class="flex flex-wrap gap-3 p-3 bg-amber-100 rounded-lg shadow-inner">
             </div>
 
 
             <!-- Undo Button -->
-            <div class="flex flex-col items-center gap-2 p-3 bg-stone-50 rounded-lg shadow-inner">
+            <div class="flex flex-col items-center gap-2 p-3 bg-amber-100 rounded-lg shadow-inner">
                 <button id="button-undo" class="text-stone-700 p-3 rounded-lg border-2 border-gray-300 bg-white hover:bg-gray-100 flex items-center justify-center">Undo</button>
             </div>
 
             <!-- Color Picker -->
-            <div class="flex flex-col items-center gap-2 p-3 bg-stone-50 rounded-lg shadow-inner">
+            <div class="flex flex-col items-center gap-2 p-3 bg-amber-100 rounded-lg shadow-inner">
                 <label for="color-picker" class="text-stone-700 font-medium">Color:</label>
                 <input type="color" id="color-picker" value="#BD0603" class="w-10 h-10 rounded-md border-stone-300 cursor-pointer">
             </div>
                      
             <!-- Canvas Sizer -->
-            <div class="flex flex-col items-center gap-2 p-3 bg-stone-50 rounded-lg shadow-inner">
+            <div class="flex flex-col items-center gap-2 p-3 bg-amber-100 rounded-lg shadow-inner">
                 <label for="dimension-picker" class="text-stone-700 font-medium">Dimensions:</label>
                 <input type="number" id="width-picker" min="10" max="1000" class="w-10 h-10 rounded-md border-stone-300 cursor-pointer">
                 <input type="number" id="height-picker" min="10" max="1000" class="w-10 h-10 rounded-md border-stone-300 cursor-pointer">
             </div>
 
             <!-- Action Buttons: Clear and Download -->
-            <div class="flex flex-col gap-2 p-3 bg-stone-50 rounded-lg shadow-inner">
+            <div class="flex flex-col gap-2 p-3 bg-amber-100 rounded-lg shadow-inner">
                 <button id="button-clear" class="px-5 py-2 rounded-lg bg-rose-800 text-white font-semibold hover:bg-rose-900 transition-colors">Clear All</button>
                 <button id="button-download" class="px-5 py-2 rounded-lg bg-lime-800 text-white font-semibold hover:bg-lime-900 transition-colors">Download Pattern</button>
             </div>
         </div>
 
         <!-- Canvas for drawing the embroidery pattern -->
-        <div class="flex justify-center items-center overflow-scroll p-2 bg-stone-100 rounded-lg shadow-inner">
+        <div class="flex justify-center items-center overflow-scroll p-2 bg-amber-100 rounded-lg shadow-inner">
             <canvas id="embroideryCanvas" class="rounded-md"></canvas>
         </div>
     </div>
-
 </body>
 </html>

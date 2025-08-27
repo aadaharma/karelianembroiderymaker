@@ -2,7 +2,6 @@
 
 body {
     font-family:  "IM Fell DW Pica", serif;
-    background-color: #f8f8f8; /* Light background */
     display: flex;
     justify-content: center;
     align-items: center;
@@ -17,8 +16,8 @@ h1 {
     font-size: 300px;
 }
 .container {
-    background-color: #ffffff;
     border-radius: 16px; /* Rounded corners for the main container */
+    background-color: #ffffff;
     box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); /* Subtle shadow */
     padding: 24px;
     display: flex;

@@ -19,8 +19,8 @@
      let GRID_HEIGHT = Math.floor(window.innerHeight / CELL_SIZE); // Number of cells vertically
 
      // Set canvas dimensions
-     canvas.width = GRID_WIDTH * CELL_SIZE;
-     canvas.height = GRID_HEIGHT * CELL_SIZE;
+     canvas.width = 65 * CELL_SIZE;
+     canvas.height = 30 * CELL_SIZE;
  
 // Embroidery template library
  const templateLibrary = [

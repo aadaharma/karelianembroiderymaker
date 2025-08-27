@@ -1,0 +1,78 @@
+@import "tailwindcss";
+
+body {
+    font-family:  "IM Fell DW Pica", serif;
+    background-color: #f8f8f8; /* Light background */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh; /* Full viewport height */
+    margin: 0;
+    padding: 20px;
+    box-sizing: border-box;
+}
+h1 {
+    font-family: "Jacquarda Bastarda 9", serif;
+    font-weight: 400;
+    font-size: 300px;
+}
+.container {
+    background-color: #ffffff;
+    border-radius: 16px; /* Rounded corners for the main container */
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); /* Subtle shadow */
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    max-width: 100%; /* Max width for larger screens */
+    width: 100%; /* Full width on smaller screens */
+}
+
+canvas {
+    border: 1px solid #e5e7eb; /* Light border around canvas */
+    background-color: #ffffff;
+    touch-action: none; /* Disable default touch actions like pinch-zoom to allow drawing */
+    border-radius: 8px; /* Rounded corners for canvas */
+    max-width: 100%; /* Ensure canvas scales down on small screens */
+    object-fit: contain;
+    height: auto; /* Maintain aspect ratio */
+}
+/* Styling for template selection buttons */
+.grid-button {
+    transition: all 0.2s ease-in-out; /* Smooth transitions for hover effects */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.5rem; /* Rounded corners for buttons */
+}
+.grid-button:hover {
+    transform: translateY(-2px); /* Slight lift on hover */
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+.grid-button.selected {
+    border-color: #65a30d; /* Green-500 for selected button border */
+    box-shadow: 0 0 0 3px #3f6212; /* Green-500 glow for selected */
+    background-color: #f7fee7; /* Light green background for selected button */
+}
+/* Style for the download and clear buttons */
+#button-clear, #button-download {
+    transition: all 0.2s ease-in-out;
+    border-radius: 0.5rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+#button-clear:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px rgba(0,0,0,0.15);
+}
+#button-download:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px rgba(0,0,0,0.15);
+}
+
+/* Responsive adjustments for button groups */
+@media (min-width: 768px) {
+    .controls-group {
+        flex-direction: row;
+        justify-content: space-between;
+    }
+}

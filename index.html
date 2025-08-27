@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, minimum-scale=1.0">
     <title>Karelian Embroidery Designer</title>
+    <link rel="stylesheet" href="appstyle.css">
     <!-- Google Fonts - Inter for clean typography -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -11,85 +12,7 @@
     <link href="https://fonts.googleapis.com/css2?family=IM+Fell+DW+Pica:ital@0;1&family=Jacquarda+Bastarda+9&display=swap" rel="stylesheet">
     <!-- Tailwind CSS CDN for styling -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        /* Custom styles to enhance responsiveness and visual appeal */
-        body {
-            font-family:  "IM Fell DW Pica", serif;
-            background-color: #f8f8f8; /* Light background */
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh; /* Full viewport height */
-            margin: 0;
-            padding: 20px;
-            box-sizing: border-box;
-        }
-        h1 {
-            font-family: "Jacquarda Bastarda 9", serif;
-            font-weight: 400;
-            font-size: 300px;
-        }
-        .container {
-            background-color: #ffffff;
-            border-radius: 16px; /* Rounded corners for the main container */
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); /* Subtle shadow */
-            padding: 24px;
-            display: flex;
-            flex-direction: column;
-            gap: 24px;
-            max-width: 100%; /* Max width for larger screens */
-            width: 100%; /* Full width on smaller screens */
-        }
-
-        canvas {
-            border: 1px solid #e5e7eb; /* Light border around canvas */
-            background-color: #ffffff;
-            touch-action: none; /* Disable default touch actions like pinch-zoom to allow drawing */
-            border-radius: 8px; /* Rounded corners for canvas */
-            max-width: 100%; /* Ensure canvas scales down on small screens */
-            object-fit: contain;
-            height: auto; /* Maintain aspect ratio */
-        }
-        /* Styling for template selection buttons */
-        .grid-button {
-            transition: all 0.2s ease-in-out; /* Smooth transitions for hover effects */
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 0.5rem; /* Rounded corners for buttons */
-        }
-        .grid-button:hover {
-            transform: translateY(-2px); /* Slight lift on hover */
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-        }
-        .grid-button.selected {
-            border-color: #65a30d; /* Green-500 for selected button border */
-            box-shadow: 0 0 0 3px #3f6212; /* Green-500 glow for selected */
-            background-color: #f7fee7; /* Light green background for selected button */
-        }
-        /* Style for the download and clear buttons */
-        #button-clear, #button-download {
-            transition: all 0.2s ease-in-out;
-            border-radius: 0.5rem;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        #button-clear:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 4px 6px rgba(0,0,0,0.15);
-        }
-        #button-download:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 4px 6px rgba(0,0,0,0.15);
-        }
-
-        /* Responsive adjustments for button groups */
-        @media (min-width: 768px) {
-            .controls-group {
-                flex-direction: row;
-                justify-content: space-between;
-            }
-        }
-    </style>
+    
 </head>
 <body>
     <div class="container">
@@ -102,11 +25,23 @@
             <div id="template-library-container" class="flex flex-wrap gap-3 p-3 bg-stone-50 rounded-lg shadow-inner">
             </div>
 
+
+            <!-- Undo Button -->
+            <div class="flex flex-col items-center gap-2 p-3 bg-stone-50 rounded-lg shadow-inner">
+                <button id="button-undo" class="text-stone-700 p-3 rounded-lg border-2 border-gray-300 bg-white hover:bg-gray-100 flex items-center justify-center">Undo</button>
+            </div>
+
             <!-- Color Picker -->
             <div class="flex flex-col items-center gap-2 p-3 bg-stone-50 rounded-lg shadow-inner">
                 <label for="color-picker" class="text-stone-700 font-medium">Color:</label>
                 <input type="color" id="color-picker" value="#BD0603" class="w-10 h-10 rounded-md border-stone-300 cursor-pointer">
-                <button id="button-undo" class="text-stone-700 p-3 rounded-lg border-2 border-gray-300 bg-white hover:bg-gray-100 flex items-center justify-center">Undo</button>
+            </div>
+                     
+            <!-- Canvas Sizer -->
+            <div class="flex flex-col items-center gap-2 p-3 bg-stone-50 rounded-lg shadow-inner">
+                <label for="dimension-picker" class="text-stone-700 font-medium">Dimensions:</label>
+                <input type="number" id="width-picker" min="10" max="1000" class="w-10 h-10 rounded-md border-stone-300 cursor-pointer">
+                <input type="number" id="height-picker" min="10" max="1000" class="w-10 h-10 rounded-md border-stone-300 cursor-pointer">
             </div>
 
             <!-- Action Buttons: Clear and Download -->
@@ -117,7 +52,7 @@
         </div>
 
         <!-- Canvas for drawing the embroidery pattern -->
-        <div class="flex justify-center items-center overflow-auto p-2 bg-stone-100 rounded-lg shadow-inner">
+        <div class="flex justify-center items-center overflow-scroll p-2 bg-stone-100 rounded-lg shadow-inner">
             <canvas id="embroideryCanvas" class="rounded-md"></canvas>
         </div>
     </div>

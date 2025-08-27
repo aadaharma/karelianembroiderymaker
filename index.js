@@ -22,8 +22,7 @@
      canvas.width = GRID_WIDTH * CELL_SIZE;
      canvas.height = GRID_HEIGHT * CELL_SIZE;
  
- // --- NEW: The Template Library ---
- // This array is the single source of truth for all available templates.
+// Embroidery template library
  const templateLibrary = [
      {
          id: 'square',
@@ -164,18 +163,11 @@
          ctx.lineTo(canvas.width, i * CELL_SIZE);
          ctx.stroke();
      }
-     redrawPattern();
+     pattern.forEach(item => {
+        drawTemplate(item.x, item.y, item.templateId, item.color);
+    });
  }
 
- /**
-  * MODIFIED: Iterates through the `pattern` array and redraws each element
-  * by finding its template in the library and calling its draw function.
-  */
- function redrawPattern() {
-     pattern.forEach(item => {
-         drawTemplate(item.x, item.y, item.templateId, item.color);
-     });
- }
  
  /**
   * REFACTORED: Finds the correct template from the library and executes its draw method.
@@ -224,7 +216,6 @@
                  pattern.splice(existingIndex, 1);
              }
          } else {
-             // Note: We now store `templateId` instead of `type`
              checkForCollision(gridX, gridY);
          }
          drawGrid();

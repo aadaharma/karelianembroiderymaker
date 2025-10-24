@@ -2,6 +2,9 @@
  const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
  const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
  const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+ 
+import { templateLibrary } from "./templateLibrary.js";
+ 
  /**
   * This function runs when the entire window content (including images, scripts, etc.) has been loaded.
   * It ensures that all DOM elements are available before script execution.
@@ -21,118 +24,7 @@
      // Set canvas dimensions
      canvas.width = GRID_WIDTH * CELL_SIZE;
      canvas.height = GRID_HEIGHT * CELL_SIZE;
- 
-// Embroidery template library
- const templateLibrary = [
-     {
-         id: 'square',
-         draw: (ctx, x, y, size, color) => {
-             ctx.strokeStyle = color;
-             ctx.lineWidth = 2;
-             ctx.beginPath();
-             ctx.moveTo(x , y);
-             ctx.lineTo(x , y + size );
-             ctx.stroke();
-             ctx.beginPath();
-             ctx.moveTo(x , y + size);
-             ctx.lineTo(x + size , y + size);
-             ctx.stroke();
-             ctx.beginPath();
-             ctx.moveTo(x + size , y + size);
-             ctx.lineTo(x + size , y);
-             ctx.stroke();
-             ctx.beginPath();
-             ctx.moveTo(x + size , y);
-             ctx.lineTo(x , y);
-             ctx.stroke();
-         }
-     },
-     {
-         id: 'cross',
-         draw: (ctx, x, y, size, color) => {
-             ctx.strokeStyle = color;
-             ctx.lineWidth = 2;
-             ctx.beginPath();
-             ctx.moveTo(x , y );
-             ctx.lineTo(x + size , y + size );
-             ctx.stroke();
-             ctx.beginPath();
-             ctx.moveTo(x + size , y );
-             ctx.lineTo(x , y + size );
-             ctx.stroke();
-         }
-     },
-     {
-         id: 'diag-forward',
-         draw: (ctx, x, y, size, color) => {
-             ctx.strokeStyle = color;
-             ctx.lineWidth = 2;
-             ctx.beginPath();
-             ctx.moveTo(x , y + size );
-             ctx.lineTo(x + size , y );
-             ctx.stroke();
-         }
-     },
-     {
-         id: 'diag-backward',
-         draw: (ctx, x, y, size, color) => {
-             ctx.strokeStyle = color;
-             ctx.lineWidth = 2;
-             ctx.beginPath();
-             ctx.moveTo(x, y);
-             ctx.lineTo(x + size, y + size);
-             ctx.stroke();
-         }
-     },
-     {
-         id: 'line-left',
-         draw: (ctx, x, y, size, color) => {
-             ctx.strokeStyle = color;
-             ctx.lineWidth = 2;
-             ctx.beginPath();
-             ctx.moveTo(x, y);
-             ctx.lineTo(x, y + size);
-             ctx.stroke();
-         }
-     },
-     {
-         id: 'line-right',
-         draw: (ctx, x, y, size, color) => {
-             ctx.strokeStyle = color;
-             ctx.lineWidth = 2;
-             ctx.beginPath();
-             ctx.moveTo(x + size, y);
-             ctx.lineTo(x + size, y + size);
-             ctx.stroke();
-         }
-     },
-     {
-         id: 'line-top',
-         draw: (ctx, x, y, size, color) => {
-             ctx.strokeStyle = color;
-             ctx.lineWidth = 2;
-             ctx.beginPath();
-             ctx.moveTo(x, y);
-             ctx.lineTo(x + size, y);
-             ctx.stroke();
-         }
-     },
-     {
-         id: 'line-bottom',
-         draw: (ctx, x, y, size, color) => {
-             ctx.strokeStyle = color;
-             ctx.lineWidth = 2;
-             ctx.beginPath();
-             ctx.moveTo(x, y + size);
-             ctx.lineTo(x + size, y + size);
-             ctx.stroke();
-         }
-     },
-     {
-         id: 'erase',
-         isEraser: true,
-     }
- ];
+   
 
  // State variables for the designer
  let selectedTemplateId = 'square'; // Default template selected
@@ -224,10 +116,10 @@
      const newItem = { x: gridX, y: gridY, templateId: selectedTemplateId, color: currentColor };
      const oldIndex = pattern.findIndex(item => item.x === gridX && item.y === gridY && item.templateId === selectedTemplateId);
              if (oldIndex === -1){
-                 if (selectedTemplateId === 'diag-forward' && pattern.some(item => item.x === gridX && item.y === gridY && item.templateId === 'cross')){
+                 if (selectedTemplateId === 'diag-right' && pattern.some(item => item.x === gridX && item.y === gridY && item.templateId === 'cross')){
                      return true;
                  }
-                 if (selectedTemplateId === 'diag-backward' && pattern.some(item => item.x === gridX && item.y === gridY && item.templateId === 'cross')){
+                 if (selectedTemplateId === 'diag-left' && pattern.some(item => item.x === gridX && item.y === gridY && item.templateId === 'cross')){
                      return true;
                  }
                  if (selectedTemplateId === 'line-left' && pattern.some(item => item.x === gridX && item.y === gridY && item.templateId === 'square')){

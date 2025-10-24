@@ -3,8 +3,13 @@
  const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
  const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
  
-import { templateLibrary } from "./templateLibrary.js";
- 
+import { templateLibrary} from "./templateLibrary.js";
+import { gridX, gridY, currentColor, pattern } from './state.js'; 
+
+
+let selectedTemplateId = 'square'; // Default template selected
+
+
  /**
   * This function runs when the entire window content (including images, scripts, etc.) has been loaded.
   * It ensures that all DOM elements are available before script execution.
@@ -25,12 +30,6 @@ import { templateLibrary } from "./templateLibrary.js";
      canvas.width = GRID_WIDTH * CELL_SIZE;
      canvas.height = GRID_HEIGHT * CELL_SIZE;
    
-
- // State variables for the designer
- let selectedTemplateId = 'square'; // Default template selected
- let currentColor = '#BD0603'; // Default drawing color
- let pattern = []; // Stores the pattern data: { x, y, templateId, color }
-
  /**
   * MODIFIED: Draws the grid and then redraws all existing pattern elements.
   */
@@ -88,8 +87,8 @@ import { templateLibrary } from "./templateLibrary.js";
      const mouseX = (clientX - rect.left) * scaleX;
      const mouseY = (clientY - rect.top) * scaleY;
 
-     const gridX = Math.floor(mouseX / CELL_SIZE);
-     const gridY = Math.floor(mouseY / CELL_SIZE);
+     gridX = Math.floor(mouseX / CELL_SIZE);
+     gridY = Math.floor(mouseY / CELL_SIZE);
 
      if (gridX >= 0 && gridX < GRID_WIDTH && gridY >= 0 && gridY < GRID_HEIGHT) {
          const existingIndex = pattern.findLastIndex(item => item.x === gridX && item.y === gridY);
@@ -101,48 +100,15 @@ import { templateLibrary } from "./templateLibrary.js";
                  return;
              }
          } else {
-             if (!checkForCollision(gridX, gridY)) {
-                let item = pattern[pattern.length-1];
-                drawTemplate(item.x, item.y, item.templateId, item.color);
-             } else {
-                 drawGrid();
-             }
+            drawTemplate(item.x, item.y, item.templateId, item.color);
+            drawGrid();
+            
          }
          
      }
  }
 
- function checkForCollision(gridX, gridY){
-     const newItem = { x: gridX, y: gridY, templateId: selectedTemplateId, color: currentColor };
-     const oldIndex = pattern.findIndex(item => item.x === gridX && item.y === gridY && item.templateId === selectedTemplateId);
-             if (oldIndex === -1){
-                 if (selectedTemplateId === 'diag-right' && pattern.some(item => item.x === gridX && item.y === gridY && item.templateId === 'cross')){
-                     return true;
-                 }
-                 if (selectedTemplateId === 'diag-left' && pattern.some(item => item.x === gridX && item.y === gridY && item.templateId === 'cross')){
-                     return true;
-                 }
-                 if (selectedTemplateId === 'line-left' && pattern.some(item => item.x === gridX && item.y === gridY && item.templateId === 'square')){
-                     return true;
-                 }
-                 if (selectedTemplateId === 'line-right' && pattern.some(item => item.x === gridX && item.y === gridY && item.templateId === 'square')){
-                     return true;
-                 }
-                 if (selectedTemplateId === 'line-top' && pattern.some(item => item.x === gridX && item.y === gridY && item.templateId === 'square')){
-                     return true;
-                 }
-                 if (selectedTemplateId === 'line-bottom' && pattern.some(item => item.x === gridX && item.y === gridY && item.templateId === 'square')){
-                     return true;
-                 }
-                 // No collision, add the item
-                 pattern.push(newItem);
-                 return false;            
-             } else {
-                // If the item already exists, remove it
-                 pattern.splice(oldIndex, 1);
-                 return true;
-             }
- }
+
  /**
   * A single function to handle selecting any template.
   */

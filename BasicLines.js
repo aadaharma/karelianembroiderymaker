@@ -10,6 +10,7 @@ export function drawLineLeft(ctx, x, y, size, color){
             ctx.moveTo(x, y);
             ctx.lineTo(x, y + size);
             ctx.stroke();
+            return;
     } else {
         return;
     }
@@ -23,6 +24,7 @@ export function drawLineRight(ctx, x, y, size, color){
             ctx.moveTo(x + size, y);
             ctx.lineTo(x + size, y + size);
             ctx.stroke();
+            return;
     } else {
         return;
     }
@@ -36,6 +38,7 @@ export function drawLineTop(ctx, x, y, size, color){
             ctx.moveTo(x, y);
             ctx.lineTo(x + size, y);
             ctx.stroke();
+            return;
     } else {
         return;
     }
@@ -49,6 +52,7 @@ export function drawLineBottom(ctx, x, y, size, color){
             ctx.moveTo(x, y + size);
             ctx.lineTo(x + size, y + size);
             ctx.stroke();
+            return;
     } else {
         return;
     }
@@ -61,6 +65,7 @@ export function drawDiagLeft(ctx, x, y, size, color){
             ctx.moveTo(x, y);
             ctx.lineTo(x + size, y + size);
             ctx.stroke();
+            return;
     } else {
         return;
     }
@@ -74,6 +79,7 @@ export function drawDiagRight(ctx, x, y, size, color){
             ctx.moveTo(x + size, y);
             ctx.lineTo(x, y + size);
             ctx.stroke();
+            return;
     } else {
         return;
     }

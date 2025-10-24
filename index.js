@@ -100,9 +100,8 @@ let selectedTemplateId = 'square'; // Default template selected
                  return;
              }
          } else {
-            drawTemplate(item.x, item.y, item.templateId, item.color);
+            drawTemplate(gridX, gridY, selectedTemplateId, currentColor);
             drawGrid();
-            
          }
          
      }

@@ -9,11 +9,7 @@ import { templateLibrary} from "./templateLibrary.js";
 
 
 let selectedTemplateId = 'square'; // Default template selected
-
-
 let currentColor = '#BD0603'; // Default drawing color
-
-
 let pattern = []; // Stores the pattern data: { x, y, templateId, color }
 
 

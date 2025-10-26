@@ -19,7 +19,7 @@ export const templateLibrary = [
          }
      },
 
-     {   id: 'kukkilintu',
+     /*{   id: 'kukkilintu',
          draw: (ctx, x, y, size, color) => {
             drawLineLeft(ctx, x, y, size, color);
             drawLineTop(ctx, x, y, size, color);
@@ -39,7 +39,7 @@ export const templateLibrary = [
             drawDiagLeft(ctx, x+(size*4), y+(size*2), size, color);
          }
 
-     },
+     },*/
      {
          id: 'diag-right',
          draw:(ctx, x, y, size, color) => {

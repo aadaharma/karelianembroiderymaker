@@ -4,10 +4,19 @@
  const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
  
 import { templateLibrary} from "./templateLibrary.js";
-import { gridX, gridY, currentColor, pattern } from './state.js'; 
+
+// State variables for the designer
 
 
 let selectedTemplateId = 'square'; // Default template selected
+
+
+let currentColor = '#BD0603'; // Default drawing color
+
+
+let pattern = []; // Stores the pattern data: { x, y, templateId, color }
+
+
 
 
  /**
@@ -100,13 +109,48 @@ let selectedTemplateId = 'square'; // Default template selected
                  return;
              }
          } else {
-            drawTemplate(gridX, gridY, selectedTemplateId, currentColor);
-            drawGrid();
-         }
+            if (!checkForCollision(gridX, gridY)) {
+               let item = pattern[pattern.length-1];
+               drawTemplate(item.x, item.y, item.templateId, item.color);
+            } else {
+                drawGrid();
+            }
+        }
          
      }
  }
 
+ function checkForCollision(gridX, gridY){
+    const newItem = { x: gridX, y: gridY, templateId: selectedTemplateId, color: currentColor };
+    const oldIndex = pattern.findIndex(item => item.x === gridX && item.y === gridY && item.templateId === selectedTemplateId);
+            if (oldIndex === -1){
+                if (selectedTemplateId === 'diag-right' && pattern.some(item => item.x === gridX && item.y === gridY && item.templateId === 'cross')){
+                    return true;
+                }
+                if (selectedTemplateId === 'diag-left' && pattern.some(item => item.x === gridX && item.y === gridY && item.templateId === 'cross')){
+                    return true;
+                }
+                if (selectedTemplateId === 'line-left' && pattern.some(item => item.x === gridX && item.y === gridY && item.templateId === 'square')){
+                    return true;
+                }
+                if (selectedTemplateId === 'line-right' && pattern.some(item => item.x === gridX && item.y === gridY && item.templateId === 'square')){
+                    return true;
+                }
+                if (selectedTemplateId === 'line-top' && pattern.some(item => item.x === gridX && item.y === gridY && item.templateId === 'square')){
+                    return true;
+                }
+                if (selectedTemplateId === 'line-bottom' && pattern.some(item => item.x === gridX && item.y === gridY && item.templateId === 'square')){
+                    return true;
+                }
+                // No collision, add the item
+                pattern.push(newItem);
+                return false;            
+            } else {
+               // If the item already exists, remove it
+                pattern.splice(oldIndex, 1);
+                return true;
+            }
+}
 
  /**
   * A single function to handle selecting any template.
